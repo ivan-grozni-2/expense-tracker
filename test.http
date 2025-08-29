@@ -1,0 +1,38 @@
+###Get all catagories
+GET http://localhost:5000/categories
+Accept: application/json
+
+###Add new catgory
+POST http://localhost:5000/categories
+Content-Type: application/json
+
+{
+    "name":"name",
+    "type":"income"
+}
+
+###Get all transaction
+GET http://localhost:5000/transactions
+Accept: application/json
+
+
+###Add new catgory
+POST http://localhost:5000/transactions
+Content-Type: application/json
+
+{
+    "user_id": 1,
+  "category_id": 5,
+  "amount": 12.5,
+  "date": "2025-05-28",
+  "note": "Lunch"
+}
+
+### Get category
+GET http://localhost:5000/transactions/stats/category
+Accept: application/json
+
+### Get category
+GET http://localhost:5000/transactions/stats/monthly
+Accept: application/json
+
