@@ -71,4 +71,19 @@ router.get("/stats/monthly", (req,res) => {
     });
 });
 
+router.delete("/:id", (req, res) => {
+    const { id } = req.params;
+    console.log("DELETE id:", id);
+
+    db.query("DELETE FROM transactions WHERE id = ?", [id], (err, result) => {
+        if (err) {
+            console.error("Error adding into catagory:", err);
+            return res.status(500).json({ error: "Failed to delete" });
+        }
+        res.status(201).json({ message: "Transaction deleted"})
+    });
+
+});
+
+
 module.exports = router;
