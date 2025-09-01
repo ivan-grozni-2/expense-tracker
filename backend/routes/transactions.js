@@ -85,5 +85,23 @@ router.delete("/:id", (req, res) => {
 
 });
 
+router.put("/:id", (req, res) => {
+    const { id } = req.params;
+    const { amount, category_id, date, note } = req.body;
+  
+    console.log(amount + " is the amount");
+
+    const sql = `UPDATE transactions SET amount = ?, category_id = ?, date = ?, note = ? WHERE id = ?`
+
+    db.query(sql, [ amount, category_id, date, note, id], (err, result) => {
+
+        if(err){
+            console.error("Error editing:", err);
+            return res.status(500).json({error: "Failed to edit"});
+        }
+        res.json({message: "Update successful"});
+    })
+});
+
 
 module.exports = router;
