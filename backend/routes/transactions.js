@@ -1,107 +1,142 @@
 const express = require("express");
-const db = require("../db");
 const router = express.Router();
+const db = require("../db"); 
 
 router.get("/", (req, res) => {
 
-    const sql = `
-    SELECT t.id, t.amount, t.date, t.note, c.id AS category, c.type AS category_type, t.user_id
-    FROM transactions t
-    JOIN categories c ON t.category_id = c.id
-    `;
+  const {month, category_id} = req.query;
+  const params = [];
 
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Err fetching : ", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.json(results);
-    });
+  let sql = "SELECT * FROM transactions ";
+
+  if(month||category_id){
+    sql += "WHERE";
+    const conditions = [];
+
+    if(month){
+      conditions.push("DATE_FORMAT(date, '%Y-%m') = ?");
+      params.push(month);
+    }
+    if (category_id) {
+      conditions.push("category_id = ?");
+      params.push(category_id);
+    }
+
+    sql += " " + conditions.join(" AND ");
+
+
+  }
+
+  db.query(sql, params, (err, result) => {
+    console.log("sql:", sql);
+    console.log("params:", params);
+
+    if(err){
+      console.error("error getting transaction :", err );
+      return res.status(500).json({error:"transaction error"});
+    }
+    res.json(result);
+  });
+
+});
+
+
+router.get("/summary", (req, res) => {
+  const sql = `
+    SELECT c.name AS category, SUM(t.amount) + 0 AS total
+    FROM transactions t
+    LEFT JOIN categories c ON t.category_id = c.id
+    GROUP BY c.name
+  `;
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.error("Error fetching summary:", err);
+      return res.status(500).json({ error: "Failed to fetch summary" });
+    }
+    res.json(rows);
+  });
+});
+
+router.get("/summary/monthly", (req, res) => {
+  const sql = `
+    SELECT DATE_FORMAT(date, '%Y-%M') AS month, SUM(amount) AS total, MIN(date) as first_day
+    FROM transactions
+    GROUP BY month
+    ORDER BY first_day
+  `;
+
+  db.query(sql, (err, result) => {
+    if(err){
+      console.error("Error summurizing:", err);
+      return res.status(500).json({error:"failed to fetch monthly summary"});
+    }
+    res.json(result.map(({month,total}) => ({month, total})));
+  });
+});
+
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+  db.query("SELECT * FROM transactions WHERE id = ?", [id], (err, results) => {
+    if (err) {
+      console.error("Error fetching transaction:", err);
+      return res.status(500).json({ error: "Failed to fetch transaction" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+    res.json(results[0]);
+  });
 });
 
 router.post("/", (req, res) => {
-    const { user_id, category_id, amount, date, note } = req.body;
+  const { amount, category_id, date } = req.body;
 
-    if (!user_id || !category_id || !amount || !date || !note) {
-        return res.status(400).json({ error: "Fill the form please" });
+  db.query(
+    "INSERT INTO transactions (amount, category_id, date) VALUES (?, ?, ?)",
+    [amount, category_id || null, date],
+    (err, result) => {
+      if (err) {
+        console.error("Error creating transaction:", err);
+        return res.status(500).json({ error: "Failed to create transaction" });
+      }
+      db.query("SELECT * FROM transactions WHERE id = ?", [result.insertId], (err2, rows) => {
+        if (err2) {
+          console.error("Error fetching new transaction:", err2);
+          return res.status(500).json({ error: "Failed to fetch new transaction" });
+        }
+        res.json(rows[0]);
+      });
     }
-
-    const sql = "INSERT INTO transactions (user_id, category_id, amount, date, note) VALUES (?, ?, ?, ?, ?)";
-
-    db.query(sql, [user_id, category_id, amount, date, note], (err, result) => {
-        if (err) {
-            console.error("Error adding into catagory:", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.status(201).json({ message: "Catagory added", id: result.insertId })
-    });
-
-});
-
-router.get("/stats/category", (req,res) =>{
-const sql = `SELECT c.name AS category, c.type AS category_type, SUM(t.amount) AS total 
-            FROM transactions t
-            JOIN categories c ON t.category_id = c.id
-            GROUP BY c.id
-            `;
-
-            db.query(sql, (err, result) => {
-                if(err){
-                    console.error("Error fetching : ", err);
-                    return res.status(500).json({error:"Database error"});
-                }
-                res.json(result);
-            });
-});
-
-router.get("/stats/monthly", (req,res) => {
-    const sql = `
-    SELECT DATE_FORMAT(date, '%Y-%m') AS month, SUM(amount) AS total
-    FROM transactions
-    GROUP BY month
-    ORDER BY month
-    `;
-
-    db.query(sql, (err, result) =>{
-        if(err){
-            console.error("Error fetching : ", err);
-            return res.status(500).json({error:"Database error"});
-        }
-        res.json(result);
-    });
-});
-
-router.delete("/:id", (req, res) => {
-    const { id } = req.params;
-    console.log("DELETE id:", id);
-
-    db.query("DELETE FROM transactions WHERE id = ?", [id], (err, result) => {
-        if (err) {
-            console.error("Error adding into catagory:", err);
-            return res.status(500).json({ error: "Failed to delete" });
-        }
-        res.status(201).json({ message: "Transaction deleted"})
-    });
-
+  );
 });
 
 router.put("/:id", (req, res) => {
-    const { id } = req.params;
-    const { amount, category_id, date, note } = req.body;
-  
-    console.log(amount + " is the amount");
+  const { id } = req.params;
+  const { amount, category_id, date } = req.body;
 
-    const sql = `UPDATE transactions SET amount = ?, category_id = ?, date = ?, note = ? WHERE id = ?`
-
-    db.query(sql, [ amount, category_id, date, note, id], (err, result) => {
-
-        if(err){
-            console.error("Error editing:", err);
-            return res.status(500).json({error: "Failed to edit"});
-        }
-        res.json({message: "Update successful"});
-    })
+  db.query(
+    "UPDATE transactions SET amount = ?, category_id = ?, date = ? WHERE id = ?",
+    [amount, category_id || null, date, id],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating transaction:", err);
+        return res.status(500).json({ error: "Failed to update transaction" });
+      }
+      res.json({ message: "Transaction updated successfully" });
+    }
+  );
 });
 
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.query("DELETE FROM transactions WHERE id = ?", [id], (err, result) => {
+    if (err) {
+      console.error("Error deleting transaction:", err);
+      return res.status(500).json({ error: "Failed to delete transaction" });
+    }
+    res.json({ message: "Transaction deleted successfully" });
+  });
+});
 
 module.exports = router;
