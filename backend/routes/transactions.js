@@ -1,19 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db"); 
+const db = require("../db");
 
 router.get("/", (req, res) => {
 
-  const {month, category_id} = req.query;
+  const { month, category_id } = req.query;
   const params = [];
 
   let sql = "SELECT * FROM transactions ";
 
-  if(month||category_id){
+  if (month || category_id) {
     sql += "WHERE";
     const conditions = [];
 
-    if(month){
+    if (month) {
       conditions.push("DATE_FORMAT(date, '%Y-%m') = ?");
       params.push(month);
     }
@@ -31,9 +31,9 @@ router.get("/", (req, res) => {
     console.log("sql:", sql);
     console.log("params:", params);
 
-    if(err){
-      console.error("error getting transaction :", err );
-      return res.status(500).json({error:"transaction error"});
+    if (err) {
+      console.error("error getting transaction :", err);
+      return res.status(500).json({ error: "transaction error" });
     }
     res.json(result);
   });
@@ -42,13 +42,27 @@ router.get("/", (req, res) => {
 
 
 router.get("/summary", (req, res) => {
-  const sql = `
+  let sql = `
     SELECT c.name AS category, SUM(t.amount) + 0 AS total
     FROM transactions t
     LEFT JOIN categories c ON t.category_id = c.id
-    GROUP BY c.name
   `;
-  db.query(sql, (err, rows) => {
+
+  const { month } = req.query;
+  const params = [];
+
+  if (month) {
+    sql += " WHERE DATE_FORMAT(t.date, '%Y-%m') = ? "
+    params.push(month);
+
+  }
+
+  sql += "GROUP BY c.name";
+
+  console.log("sql summary: ", sql);
+
+
+  db.query(sql, params, (err, rows) => {
     if (err) {
       console.error("Error fetching summary:", err);
       return res.status(500).json({ error: "Failed to fetch summary" });
@@ -58,19 +72,31 @@ router.get("/summary", (req, res) => {
 });
 
 router.get("/summary/monthly", (req, res) => {
-  const sql = `
+  let sql = `
     SELECT DATE_FORMAT(date, '%Y-%M') AS month, SUM(amount) AS total, MIN(date) as first_day
-    FROM transactions
+    FROM transactions`
+  const backsql = `
     GROUP BY month
     ORDER BY first_day
   `;
+  const {category_id} = req.query;
+  const params =[];
 
-  db.query(sql, (err, result) => {
-    if(err){
+  if(category_id){
+    sql += " WHERE category_id = ? ";
+    params.push(category_id);
+  }
+
+  sql += backsql;
+
+  console.log("summary monthly sql: ", sql);
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
       console.error("Error summurizing:", err);
-      return res.status(500).json({error:"failed to fetch monthly summary"});
+      return res.status(500).json({ error: "failed to fetch monthly summary" });
     }
-    res.json(result.map(({month,total}) => ({month, total})));
+    res.json(result.map(({ month, total }) => ({ month, total })));
   });
 });
 
