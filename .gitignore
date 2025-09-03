@@ -1,0 +1,9 @@
+#node modules
+backend/node_modules/
+front/node_modules/
+
+front/build/
+
+*.log
+
+*.env
