@@ -1,6 +1,53 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
+const {Parser} = require("json2csv")
+
+router.get("/export/csv", (req, res) => {
+  let sql = `SELECT t.amount, DATE_FORMAT(t.date, '%Y-%m') AS date, c.name AS category
+              FROM transactions t
+              LEFT JOIN categories c ON t.category_id = c.id
+              WHERE 1=1
+              `;
+  const {month, category_id} = req.query;
+  const params = [];
+
+  if(month){
+    sql += " AND DATE_FORMAT(t.date, '%Y-%m') = ?";
+    params.push(month);
+  }
+
+  if(category_id){
+    sql += " AND category_id = ?";
+    params.push(category_id);
+  }
+ 
+  console.log("sql:", sql);
+  console.log("params:", params);
+
+  db.query(sql, params, (err, result) => {
+    if(err){
+      console.error("error getting for export :", err);
+      return res.status(500).json({error : err.message});
+    }
+
+  console.log("sql:", result);
+
+    try{
+      const json2csv = new Parser();
+      const csv = json2csv.parse(result);
+
+      res.header("Content-Type", "text/csv");
+      res.attachment("transactions.csv");
+      res.send(csv);
+    }catch(err){
+      res.status(500).json({error: err.message});
+    }
+
+  });
+
+
+});
 
 router.get("/", (req, res) => {
 
@@ -23,14 +70,10 @@ router.get("/", (req, res) => {
     }
 
     sql += " " + conditions.join(" AND ");
-
-
   }
-
+  
   db.query(sql, params, (err, result) => {
-    console.log("sql:", sql);
-    console.log("params:", params);
-
+    
     if (err) {
       console.error("error getting transaction :", err);
       return res.status(500).json({ error: "transaction error" });
@@ -40,6 +83,30 @@ router.get("/", (req, res) => {
 
 });
 
+router.get("/total", (req,res) => {
+  let sql = "SELECT SUM(t.amount) as total FROM transactions t WHERE 1=1"
+  const {month, category_id} = req.query;
+  const params = [];
+
+  if(month){
+    sql += " AND DATE_FORMAT(date, '%Y-%m') = ?";
+    params.push(month);
+  }
+  if(category_id){
+    sql += " AND category_id = ?";
+    params.push(category_id);
+  }
+
+  db.query(sql, params, (err, result) => {
+    if(err){
+      console.error("total error:", err);
+      return res.status(500).json({error:"cannot get total"});
+    }
+    res.json({total: result[0].total || 0});
+  });
+
+
+});
 
 router.get("/summary", (req, res) => {
   let sql = `

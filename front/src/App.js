@@ -10,9 +10,14 @@ function App() {
   const [summary, setSummary] = useState([]);
   const [month, setMonth] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [filters, setFilters] = useState({month: "", category: ""});
 
-  const fetchTransactions = async (filters = {}) => {
-    const query = new URLSearchParams(filters).toString();
+
+  const fetchTransactions = async (newFilters = {}) => {
+    const applyFilters = {...filters, ...newFilters};
+    setFilters(newFilters);
+    const query = new URLSearchParams(newFilters).toString();
 
     try {
       const res1 = await fetch(`http://localhost:5000/transactions?${query}`);
@@ -23,11 +28,16 @@ function App() {
       const data2 = await res2.json();
       setSummary(data2);
 
-      console.log("data2 :", data2);
-
       const res3 = await fetch(`http://localhost:5000/transactions/summary/monthly?${query}`);
       const data3 = await res3.json();
       setMonth(data3);
+
+      const res4 = await fetch(`http://localhost:5000/transactions/total?${query}`);
+      const data4 = await res4.json();
+      setTotal(data4.total);
+
+      console.log("total :", total);
+
     } catch (err) {
       console.error("Error fetching:", err);
     }
@@ -58,19 +68,33 @@ function App() {
       .catch((err) => console.error("Error fetching categories:", err));
   }, []);
 
+  function handleExport(){
+    let query = "";
+    if(filters.month||filters.category){
+      const params = new URLSearchParams(filters).toString();
+      query = "?" + params;
+      
+    }
+    
+    console.log("query is:" + `http://localhost:5000/transactions/export/csv${query}`);
+    window.open(`http://localhost:5000/transactions/export/csv${query}`, "_blank")
+  };
+
   return (
     <div style={{ margin: "2rem" }}>
       <h1> Expense Tracker</h1>
       <Filters categories={categories} onFilter={fetchTransactions} />
       <TransactionForm onAdd={fetchTransactions} categories={categories} />
+      <button onClick={handleExport}> Export </button>
       <TransactionTable
         transactions={transactions}
         onDelete={fetchTransactions}
         onEdit = {fetchTransactions}
         categories={categories}
       />
-      <Chart data={summary} type="pie" title="Expenses by Category" />
-      <Chart data={month} type="line" title="Monthly Expenses" />
+      <h3>TOTAL = ${total}</h3>
+      <Chart data={summary} total = {total} type="pie" title="Expenses by Category" />
+      <Chart data={month} total = {total}type="line" title="Monthly Expenses" />
     </div>
   );
 }

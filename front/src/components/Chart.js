@@ -21,10 +21,21 @@ function Chart({data, type, title}) {
 
 data = data.map((d) => ({...d, total: Number(d.total)}));
 
+
+function total(){
+    let total = 0;
+    data.forEach((d) => {
+        total += d.total;
+    });
+    return (Math.round(total*100))/100;
+}
+
+
     console.log("summary : ", data);
     return (
         <>
             <h2>{title}</h2>
+            <h3>Total: ${total()}</h3>
             {type === "pie" ? (
                 <div style={{ display: "flex", gap: "2rem", marginTop: "2rem" }}>
                     {data.length === 0 ? (
