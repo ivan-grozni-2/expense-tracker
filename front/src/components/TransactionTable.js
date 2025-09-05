@@ -3,6 +3,8 @@ import React, { useState } from "react";
 function TransactionTable({ transactions, setTransactions, categories }) {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "" });
+  const [sorting, setSorting] = useState({ column: "", direction: 1 });
+  const [arrowDirection, setArrowDirection] = useState({ id: "-", date: "-", amount: "-", category_name: "-" })
 
   const startEditing = (transaction) => {
     setEditingId(transaction.id);
@@ -36,14 +38,47 @@ function TransactionTable({ transactions, setTransactions, categories }) {
       .catch((err) => console.error("Error deleting transaction:", err));
   };
 
+  const handleSort = (key) => {
+    const arrow = ["v", "^"];
+
+    let dc = (Math.abs(sorting.direction - 1));
+
+    setSorting({ column: key, direction: dc });
+    setArrowDirection({ id: "-", date: "-", amount: "-", category_name: "-" });
+    setArrowDirection({ ...arrowDirection, [key]: arrow[sorting.direction] });
+
+    setTransactions(transactions.sort((a, b) => {
+      let ak = a[key];
+      let bk = b[key];
+      if (sorting.direction === 0) {
+        if(key === "date") return new Date(bk) - new Date(ak);
+        if(key  === "category_name") return bk.localeCompare(ak)
+        
+        return bk - ak;
+      } else {
+        if(key === "date") return new Date(ak) - new Date(bk);
+        if(key  === "category_name") return ak.localeCompare(bk)
+        
+        return ak - bk;
+      }
+    }));
+
+
+    console.log("dn : ", key);
+    console.log("column : ", sorting);
+    console.log("dc : ", dc);
+  };
+
+  console.log("transactions :", transactions);
+
   return (
     <table border="1" cellPadding="5">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Amount</th>
-          <th>Category</th>
-          <th>Date</th>
+          <th onClick={() => handleSort("id")}>ID {arrowDirection.id}</th>
+          <th onClick={() => handleSort("amount")}>Amount {arrowDirection.amount}</th>
+          <th onClick={() => handleSort("category_name")}>Category {arrowDirection.category_name}</th>
+          <th onClick={() => handleSort("date")}>Date {arrowDirection.date}</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -64,15 +99,13 @@ function TransactionTable({ transactions, setTransactions, categories }) {
               {editingId === t.id ? (
                 <select
                   value={editForm.category_id}
-                  onChange={(e) => setEditForm({ ...editForm, category_id: e.target.value })}
+                  onChange={(e) => setEditForm({ ...editForm, category_id: Number(e.target.value) })}
                 >
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
-              ) : (
-                categories.find((c) => c.id === t.category_id)?.name || "Uncategorized"
-              )}
+              ) : t.category_name}
             </td>
             <td>
               {editingId === t.id ? (

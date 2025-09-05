@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
-const {Parser} = require("json2csv")
+const { Parser } = require("json2csv")
 
 router.get("/export/csv", (req, res) => {
   let sql = `SELECT t.amount, DATE_FORMAT(t.date, '%Y-%m') AS date, c.name AS category
@@ -9,39 +9,38 @@ router.get("/export/csv", (req, res) => {
               LEFT JOIN categories c ON t.category_id = c.id
               WHERE 1=1
               `;
-  const {month, category_id} = req.query;
+  const { startmonth, endmonth, category_id } = req.query;
   const params = [];
-
-  if(month){
-    sql += " AND DATE_FORMAT(t.date, '%Y-%m') = ?";
-    params.push(month);
+  if (startmonth && endmonth) {
+    sql += " AND DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ";
+    params.push(startmonth, endmonth);
   }
 
-  if(category_id){
+  if (category_id) {
     sql += " AND category_id = ?";
     params.push(category_id);
   }
- 
+
   console.log("sql:", sql);
   console.log("params:", params);
 
   db.query(sql, params, (err, result) => {
-    if(err){
+    if (err) {
       console.error("error getting for export :", err);
-      return res.status(500).json({error : err.message});
+      return res.status(500).json({ error: err.message });
     }
 
-  console.log("sql:", result);
+    console.log("sql:", result);
 
-    try{
+    try {
       const json2csv = new Parser();
       const csv = json2csv.parse(result);
 
       res.header("Content-Type", "text/csv");
       res.attachment("transactions.csv");
       res.send(csv);
-    }catch(err){
-      res.status(500).json({error: err.message});
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
 
   });
@@ -51,29 +50,30 @@ router.get("/export/csv", (req, res) => {
 
 router.get("/", (req, res) => {
 
-  const { month, category_id } = req.query;
+  const { startmonth, endmonth, category_id } = req.query;
   const params = [];
 
-  let sql = "SELECT * FROM transactions ";
+  let sql = "SELECT t.*, c.name AS category_name FROM transactions t LEFT JOIN categories c ON t.category_id = c.id ";
 
-  if (month || category_id) {
+  if ((startmonth && endmonth) || category_id) {
     sql += "WHERE";
     const conditions = [];
 
-    if (month) {
-      conditions.push("DATE_FORMAT(date, '%Y-%m') = ?");
-      params.push(month);
+    if (startmonth && endmonth) {
+      conditions.push(" DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ");
+      params.push(startmonth, endmonth);
     }
     if (category_id) {
-      conditions.push("category_id = ?");
+      conditions.push("t.category_id = ?");
       params.push(category_id);
     }
 
     sql += " " + conditions.join(" AND ");
+    sql += " ORDER BY t.id ASC"
   }
-  
+
   db.query(sql, params, (err, result) => {
-    
+
     if (err) {
       console.error("error getting transaction :", err);
       return res.status(500).json({ error: "transaction error" });
@@ -83,26 +83,26 @@ router.get("/", (req, res) => {
 
 });
 
-router.get("/total", (req,res) => {
+router.get("/total", (req, res) => {
   let sql = "SELECT SUM(t.amount) as total FROM transactions t WHERE 1=1"
-  const {month, category_id} = req.query;
+  const { startmonth, endmonth, category_id } = req.query;
   const params = [];
 
-  if(month){
-    sql += " AND DATE_FORMAT(date, '%Y-%m') = ?";
-    params.push(month);
+  if (startmonth && endmonth) {
+    sql += " AND DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ";
+    params.push(startmonth, endmonth);
   }
-  if(category_id){
+  if (category_id) {
     sql += " AND category_id = ?";
     params.push(category_id);
   }
 
   db.query(sql, params, (err, result) => {
-    if(err){
+    if (err) {
       console.error("total error:", err);
-      return res.status(500).json({error:"cannot get total"});
+      return res.status(500).json({ error: "cannot get total" });
     }
-    res.json({total: result[0].total || 0});
+    res.json({ total: result[0].total || 0 });
   });
 
 
@@ -113,15 +113,15 @@ router.get("/summary", (req, res) => {
     SELECT c.name AS category, SUM(t.amount) + 0 AS total
     FROM transactions t
     LEFT JOIN categories c ON t.category_id = c.id
+    WHERE 1=1
   `;
 
-  const { month } = req.query;
+  const { startmonth, endmonth } = req.query;
   const params = [];
 
-  if (month) {
-    sql += " WHERE DATE_FORMAT(t.date, '%Y-%m') = ? "
-    params.push(month);
-
+  if (startmonth && endmonth) {
+    sql += " AND DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ";
+    params.push(startmonth, endmonth);
   }
 
   sql += "GROUP BY c.name";
@@ -140,18 +140,24 @@ router.get("/summary", (req, res) => {
 
 router.get("/summary/monthly", (req, res) => {
   let sql = `
-    SELECT DATE_FORMAT(date, '%Y-%M') AS month, SUM(amount) AS total, MIN(date) as first_day
-    FROM transactions`
+    SELECT DATE_FORMAT(date, '%Y-%m-%d') AS day, SUM(amount) AS total
+    FROM transactions
+    WHERE 1=1
+    `
   const backsql = `
-    GROUP BY month
-    ORDER BY first_day
+    GROUP BY day
+    ORDER BY day
   `;
-  const {category_id} = req.query;
-  const params =[];
+  const { startmonth, endmonth, category_id } = req.query;
+  const params = [];
 
-  if(category_id){
-    sql += " WHERE category_id = ? ";
+  if (category_id) {
+    sql += " AND category_id = ? ";
     params.push(category_id);
+  }
+  if (startmonth && endmonth) {
+    sql += " AND DATE_FORMAT(date, '%Y-%m') BETWEEN ? AND ? ";
+    params.push(startmonth, endmonth);
   }
 
   sql += backsql;
@@ -163,7 +169,7 @@ router.get("/summary/monthly", (req, res) => {
       console.error("Error summurizing:", err);
       return res.status(500).json({ error: "failed to fetch monthly summary" });
     }
-    res.json(result.map(({ month, total }) => ({ month, total })));
+    res.json(result);
   });
 });
 

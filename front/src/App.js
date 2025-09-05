@@ -36,7 +36,6 @@ function App() {
       const data4 = await res4.json();
       setTotal(data4.total);
 
-      console.log("total :", total);
 
     } catch (err) {
       console.error("Error fetching:", err);
@@ -76,7 +75,6 @@ function App() {
       
     }
     
-    console.log("query is:" + `http://localhost:5000/transactions/export/csv${query}`);
     window.open(`http://localhost:5000/transactions/export/csv${query}`, "_blank")
   };
 
@@ -88,8 +86,7 @@ function App() {
       <button onClick={handleExport}> Export </button>
       <TransactionTable
         transactions={transactions}
-        onDelete={fetchTransactions}
-        onEdit = {fetchTransactions}
+        setTransactions = {setTransactions}
         categories={categories}
       />
       <h3>TOTAL = ${total}</h3>

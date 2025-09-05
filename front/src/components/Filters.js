@@ -2,28 +2,37 @@ import React, { useState } from "react";
 
 function Filters({categories, onFilter}){
 
-    const[month, setMonth] = useState("");
+    const[startmonth, setStartMonth] = useState("");
+    const[endmonth, setEndMonth] = useState("");
     const[category, setCategory] = useState("");
 
     const handleFilter = () => {
-        onFilter({month, category_id: category});
+        onFilter({startmonth, endmonth, category_id: category});
         
-        console.log("filters:", { month, category_id: category })
+        console.log("filters:", { startmonth, endmonth, category_id: category })
     };
 
 
     const handleReset = () =>{
-        setMonth("");
+        setStartMonth("");
+        setEndMonth("");
         setCategory("");
-        onFilter({month: "", category_id: ""});
+        onFilter({startmonth: "", endmonth: "", category_id: ""});
     };
 
     return(
+        <>
+        <h2>Filter</h2>
         <div style = {{ marginBottom: "1rem", display: "flex", gap: "1rem"}}>
+           <input
+                type="month"
+                value={startmonth}
+                onChange={(e) => setStartMonth(e.target.value)}
+            />
             <input
                 type="month"
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
+                value={endmonth}
+                onChange={(e) => setEndMonth(e.target.value)}
             />
             <select value={category} onChange={(e) => setCategory(e.target.value)}>
                 <option value="">All</option>
@@ -34,7 +43,7 @@ function Filters({categories, onFilter}){
             <button onClick={handleFilter}>Apply</button>
             <button onClick={handleReset}>Reset</button>
         </div>
-
+</>
     );
 
 

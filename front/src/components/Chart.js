@@ -31,7 +31,6 @@ function total(){
 }
 
 
-    console.log("summary : ", data);
     return (
         <>
             <h2>{title}</h2>
@@ -94,7 +93,7 @@ function total(){
                                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                             >
                                 <CartesianGrid strokeDasharray={"3 3"} />
-                                <XAxis dataKey="month" />
+                                <XAxis dataKey="day" />
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
