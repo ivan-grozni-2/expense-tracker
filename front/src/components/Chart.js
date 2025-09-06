@@ -1,9 +1,9 @@
 //import React, { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid,LineChart, Line } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28EFF"];
 
-function Chart({data, type, title}) {
+function Chart({ data, type, title }) {
     /*const [summary, setSummary] = useState([]);
 
     useEffect(() => {
@@ -19,17 +19,25 @@ function Chart({data, type, title}) {
     }, []);
 */
 
-data = data.map((d) => ({...d, total: Number(d.total)}));
-
-
-function total(){
-    let total = 0;
-    data.forEach((d) => {
-        total += d.total;
-    });
-    return (Math.round(total*100))/100;
+if(data.error){
+    return(<>
+     {data.error && <h3 style={{color:"red"}}> {data.error} </h3>};
+    </>);
 }
+    if (data.length !== 0) {
+        console.log("data :", data);
+    
+        data = data.map((d) => ({ ...d, total: Number(d.total) }));
+    }
 
+
+    function total() {
+        let total = 0;
+        data.forEach((d) => {
+            total += d.total;
+        });
+        return (Math.round(total * 100)) / 100;
+    }
 
     return (
         <>

@@ -1,16 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
-const { Parser } = require("json2csv")
+const { Parser } = require("json2csv");
+const authMiddleware = require("../middleware/auth");
 
-router.get("/export/csv", (req, res) => {
+router.get("/export/csv", authMiddleware, (req, res) => {
   let sql = `SELECT t.amount, DATE_FORMAT(t.date, '%Y-%m') AS date, c.name AS category
               FROM transactions t
               LEFT JOIN categories c ON t.category_id = c.id
-              WHERE 1=1
+              WHERE user_id = ?
               `;
   const { startmonth, endmonth, category_id } = req.query;
   const params = [];
+  const user = req.user.id;
+  params.push(user);
+
   if (startmonth && endmonth) {
     sql += " AND DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ";
     params.push(startmonth, endmonth);
@@ -21,16 +25,11 @@ router.get("/export/csv", (req, res) => {
     params.push(category_id);
   }
 
-  console.log("sql:", sql);
-  console.log("params:", params);
-
   db.query(sql, params, (err, result) => {
     if (err) {
       console.error("error getting for export :", err);
       return res.status(500).json({ error: err.message });
     }
-
-    console.log("sql:", result);
 
     try {
       const json2csv = new Parser();
@@ -48,15 +47,20 @@ router.get("/export/csv", (req, res) => {
 
 });
 
-router.get("/", (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
 
   const { startmonth, endmonth, category_id } = req.query;
   const params = [];
+  const user = req.user.id;
+  params.push(user);
+
+  
+  console.log("what is the sql ", req.user);
 
   let sql = "SELECT t.*, c.name AS category_name FROM transactions t LEFT JOIN categories c ON t.category_id = c.id ";
 
+  sql += "WHERE t.user_id = ? ";
   if ((startmonth && endmonth) || category_id) {
-    sql += "WHERE";
     const conditions = [];
 
     if (startmonth && endmonth) {
@@ -74,6 +78,7 @@ router.get("/", (req, res) => {
 
   db.query(sql, params, (err, result) => {
 
+
     if (err) {
       console.error("error getting transaction :", err);
       return res.status(500).json({ error: "transaction error" });
@@ -83,10 +88,12 @@ router.get("/", (req, res) => {
 
 });
 
-router.get("/total", (req, res) => {
-  let sql = "SELECT SUM(t.amount) as total FROM transactions t WHERE 1=1"
+router.get("/total", authMiddleware, (req, res) => {
+  let sql = "SELECT SUM(t.amount) as total FROM transactions t WHERE t.user_id = ? "
   const { startmonth, endmonth, category_id } = req.query;
   const params = [];
+  const user = req.user.id;
+  params.push(user);
 
   if (startmonth && endmonth) {
     sql += " AND DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ";
@@ -108,16 +115,18 @@ router.get("/total", (req, res) => {
 
 });
 
-router.get("/summary", (req, res) => {
+router.get("/summary", authMiddleware, (req, res) => {
   let sql = `
     SELECT c.name AS category, SUM(t.amount) + 0 AS total
     FROM transactions t
     LEFT JOIN categories c ON t.category_id = c.id
-    WHERE 1=1
+    WHERE t.user_id = ? 
   `;
 
   const { startmonth, endmonth } = req.query;
   const params = [];
+  const user = req.user.id;
+  params.push(user);
 
   if (startmonth && endmonth) {
     sql += " AND DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ";
@@ -125,9 +134,6 @@ router.get("/summary", (req, res) => {
   }
 
   sql += "GROUP BY c.name";
-
-  console.log("sql summary: ", sql);
-
 
   db.query(sql, params, (err, rows) => {
     if (err) {
@@ -138,11 +144,11 @@ router.get("/summary", (req, res) => {
   });
 });
 
-router.get("/summary/monthly", (req, res) => {
+router.get("/summary/monthly", authMiddleware, (req, res) => {
   let sql = `
     SELECT DATE_FORMAT(date, '%Y-%m-%d') AS day, SUM(amount) AS total
     FROM transactions
-    WHERE 1=1
+    WHERE user_id = ?
     `
   const backsql = `
     GROUP BY day
@@ -150,6 +156,8 @@ router.get("/summary/monthly", (req, res) => {
   `;
   const { startmonth, endmonth, category_id } = req.query;
   const params = [];
+  const user = req.user.id;
+  params.push(user);
 
   if (category_id) {
     sql += " AND category_id = ? ";
@@ -162,8 +170,6 @@ router.get("/summary/monthly", (req, res) => {
 
   sql += backsql;
 
-  console.log("summary monthly sql: ", sql);
-
   db.query(sql, params, (err, result) => {
     if (err) {
       console.error("Error summurizing:", err);
@@ -173,9 +179,10 @@ router.get("/summary/monthly", (req, res) => {
   });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", authMiddleware, (req, res) => {
   const { id } = req.params;
-  db.query("SELECT * FROM transactions WHERE id = ?", [id], (err, results) => {
+  const user = req.user.id;
+  db.query("SELECT * FROM transactions WHERE id = ? AND user_id = ? ", [id, user], (err, results) => {
     if (err) {
       console.error("Error fetching transaction:", err);
       return res.status(500).json({ error: "Failed to fetch transaction" });
@@ -187,12 +194,13 @@ router.get("/:id", (req, res) => {
   });
 });
 
-router.post("/", (req, res) => {
+router.post("/", authMiddleware, (req, res) => {
   const { amount, category_id, date } = req.body;
+  const user = req.user.id;
 
   db.query(
-    "INSERT INTO transactions (amount, category_id, date) VALUES (?, ?, ?)",
-    [amount, category_id || null, date],
+    "INSERT INTO transactions (user_id, amount, category_id, date) VALUES (?, ?, ?, ?)",
+    [user, amount, category_id || null, date],
     (err, result) => {
       if (err) {
         console.error("Error creating transaction:", err);
@@ -209,13 +217,14 @@ router.post("/", (req, res) => {
   );
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", authMiddleware, (req, res) => {
   const { id } = req.params;
   const { amount, category_id, date } = req.body;
+  const user = req.user.id;
 
   db.query(
-    "UPDATE transactions SET amount = ?, category_id = ?, date = ? WHERE id = ?",
-    [amount, category_id || null, date, id],
+    "UPDATE transactions SET amount = ?, category_id = ?, date = ? WHERE id = ? AND user_id = ?",
+    [amount, category_id || null, date, id, user],
     (err, result) => {
       if (err) {
         console.error("Error updating transaction:", err);
@@ -226,10 +235,11 @@ router.put("/:id", (req, res) => {
   );
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", authMiddleware, (req, res) => {
   const { id } = req.params;
+  const user = req.user.id;
 
-  db.query("DELETE FROM transactions WHERE id = ?", [id], (err, result) => {
+  db.query("DELETE FROM transactions WHERE id = ? AND user_id = ?", [id, user], (err, result) => {
     if (err) {
       console.error("Error deleting transaction:", err);
       return res.status(500).json({ error: "Failed to delete transaction" });

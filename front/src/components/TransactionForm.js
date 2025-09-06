@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import AuthContext from "../context/AuthContext";
 
-function TransactionForm({ setTransactions, categories }) {
+function TransactionForm({ transactions, setTransactions, categories, fetchTransactions }) {
+  const { userid, token } = useContext(AuthContext);
   const [form, setForm] = useState({
     amount: "",
-    category_id: categories[0]?.id || "",
-    date: new Date().toISOString().split("T")[0], 
+    category_id: categories[0]?.id || 1,
+    date: new Date().toISOString().split("T")[0],
+    userid: userid,
   });
 
   const handleChange = (e) => {
@@ -16,11 +19,16 @@ function TransactionForm({ setTransactions, categories }) {
 
     fetch("http://localhost:5000/transactions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(form),
     })
       .then((res) => res.json())
       .then((newTransaction) => {
+        newTransaction.category_name = categories.find(item => item.id === newTransaction.category_id).name;
+        console.log("new transaction is",newTransaction);
         setTransactions((prev) => [...prev, newTransaction]);
         setForm({
           amount: "",
@@ -29,6 +37,8 @@ function TransactionForm({ setTransactions, categories }) {
         });
       })
       .catch((err) => console.error("Error adding transaction:", err));
+
+      //fetchTransactions();
   };
 
   return (

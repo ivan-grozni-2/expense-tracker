@@ -71,7 +71,7 @@ function TransactionTable({ transactions, setTransactions, categories }) {
 
   console.log("transactions :", transactions);
 
-  return (
+  return (<>
     <table border="1" cellPadding="5">
       <thead>
         <tr>
@@ -132,7 +132,7 @@ function TransactionTable({ transactions, setTransactions, categories }) {
           </tr>
         ))}
       </tbody>
-    </table>
+    </table></>
   );
 }
 
