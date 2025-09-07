@@ -20,6 +20,28 @@ function Dashboard() {
     const { logout } = useContext(AuthContext);
 
 
+
+    const authFetch = async (url, options = {}) => {
+        const res = await fetch(url, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+                ...options.headers
+            },
+        });
+        if (res.status === 401) {
+            logout();
+            console.error("Login has timed out, so please login again.");
+        }
+
+        return await res.json();
+    };
+
+    const save = () => {
+
+    }
+
     const fetchTransactions = async (newFilters = {}) => {
         const applyFilters = { ...filters, ...newFilters };
         setFilters(newFilters);
@@ -28,40 +50,36 @@ function Dashboard() {
         console.log("user is", token);
 
         try {
-            const res1 = await fetch(`http://localhost:5000/transactions?${query}`, {
+            const data1 = await authFetch(`http://localhost:5000/transactions?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 }
             });
-            const data1 = await res1.json();
             setTransactions(data1);
 
-            const res2 = await fetch(`http://localhost:5000/transactions/summary?${query}`, {
+            const data2 = await authFetch(`http://localhost:5000/transactions/summary?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 }
             });
-            const data2 = await res2.json();
             setSummary(data2);
 
-            const res3 = await fetch(`http://localhost:5000/transactions/summary/monthly?${query}`, {
+            const data3 = await authFetch(`http://localhost:5000/transactions/summary/monthly?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 }
             });
-            const data3 = await res3.json();
             setMonth(data3);
 
-            const res4 = await fetch(`http://localhost:5000/transactions/total?${query}`, {
+            const data4 = await authFetch(`http://localhost:5000/transactions/total?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 }
             });
-            const data4 = await res4.json();
             setTotal(data4.total);
 
 
@@ -98,13 +116,16 @@ function Dashboard() {
                 transactions={transactions}
                 setTransactions={setTransactions}
                 categories={categories}
-                fetchTransactions={fetchTransactions} />
+                fetchTransactions={fetchTransactions}
+                filters={filters}
+            />
             <button onClick={handleExport}> Export </button>
             <TransactionTable
                 transactions={transactions}
                 setTransactions={setTransactions}
                 categories={categories}
                 fetchTransactions={fetchTransactions}
+                filters={filters}
             />
             <h3>TOTAL = ${total}</h3>
             <Chart data={summary} total={total} type="pie" title="Expenses by Category" />

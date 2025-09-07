@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import AuthContext from "../context/AuthContext";
 
-function TransactionTable({ transactions, setTransactions, categories }) {
+function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters }) {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "" });
   const [sorting, setSorting] = useState({ column: "", direction: 1 });
   const [arrowDirection, setArrowDirection] = useState({ id: "-", date: "-", amount: "-", category_name: "-" })
+  const { user, token, userid } = useContext(AuthContext);
 
   const startEditing = (transaction) => {
     setEditingId(transaction.id);
@@ -18,7 +20,10 @@ function TransactionTable({ transactions, setTransactions, categories }) {
   const handleSave = (id) => {
     fetch(`http://localhost:5000/transactions/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(editForm),
     })
       .then((res) => {
@@ -30,12 +35,19 @@ function TransactionTable({ transactions, setTransactions, categories }) {
         setEditingId(null);
       })
       .catch((err) => console.error("Error updating transaction:", err));
+      fetchTransactions(filters);
   };
 
   const handleDelete = (id) => {
-    fetch(`http://localhost:5000/transactions/${id}`, { method: "DELETE" })
+    fetch(`http://localhost:5000/transactions/${id}`, { 
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }, })
       .then(() => setTransactions(transactions.filter((t) => t.id !== id)))
       .catch((err) => console.error("Error deleting transaction:", err));
+      fetchTransactions(filters);
   };
 
   const handleSort = (key) => {
@@ -51,14 +63,14 @@ function TransactionTable({ transactions, setTransactions, categories }) {
       let ak = a[key];
       let bk = b[key];
       if (sorting.direction === 0) {
-        if(key === "date") return new Date(bk) - new Date(ak);
-        if(key  === "category_name") return bk.localeCompare(ak)
-        
+        if (key === "date") return new Date(bk) - new Date(ak);
+        if (key === "category_name") return bk.localeCompare(ak)
+
         return bk - ak;
       } else {
-        if(key === "date") return new Date(ak) - new Date(bk);
-        if(key  === "category_name") return ak.localeCompare(bk)
-        
+        if (key === "date") return new Date(ak) - new Date(bk);
+        if (key === "category_name") return ak.localeCompare(bk)
+
         return ak - bk;
       }
     }));
@@ -71,8 +83,8 @@ function TransactionTable({ transactions, setTransactions, categories }) {
 
   console.log("transactions :", transactions);
 
-  return (<>
-    <table border="1" cellPadding="5">
+  return (<>{transactions.length ?
+    (<table border="1" cellPadding="5">
       <thead>
         <tr>
           <th onClick={() => handleSort("id")}>ID {arrowDirection.id}</th>
@@ -132,7 +144,9 @@ function TransactionTable({ transactions, setTransactions, categories }) {
           </tr>
         ))}
       </tbody>
-    </table></>
+    </table>) : (
+      <p> no transaction please add a new one</p>
+    )}</>
   );
 }
 

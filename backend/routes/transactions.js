@@ -59,9 +59,10 @@ router.get("/", authMiddleware, (req, res) => {
 
   let sql = "SELECT t.*, c.name AS category_name FROM transactions t LEFT JOIN categories c ON t.category_id = c.id ";
 
-  sql += "WHERE t.user_id = ? ";
-  if ((startmonth && endmonth) || category_id) {
     const conditions = [];
+    conditions.push("WHERE t.user_id = ?");
+
+  if ((startmonth && endmonth) || category_id) {
 
     if (startmonth && endmonth) {
       conditions.push(" DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ");

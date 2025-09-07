@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import AuthContext from "../context/AuthContext";
 
-function TransactionForm({ transactions, setTransactions, categories, fetchTransactions }) {
+function TransactionForm({ transactions, setTransactions, categories, fetchTransactions, filters }) {
   const { userid, token } = useContext(AuthContext);
   const [form, setForm] = useState({
     amount: "",
@@ -28,8 +28,7 @@ function TransactionForm({ transactions, setTransactions, categories, fetchTrans
       .then((res) => res.json())
       .then((newTransaction) => {
         newTransaction.category_name = categories.find(item => item.id === newTransaction.category_id).name;
-        console.log("new transaction is",newTransaction);
-        setTransactions((prev) => [...prev, newTransaction]);
+        console.log("new transaction is",newTransaction); 
         setForm({
           amount: "",
           category_id: categories[0]?.id || "",
@@ -38,7 +37,7 @@ function TransactionForm({ transactions, setTransactions, categories, fetchTrans
       })
       .catch((err) => console.error("Error adding transaction:", err));
 
-      //fetchTransactions();
+      fetchTransactions(filters);
   };
 
   return (

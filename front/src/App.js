@@ -17,7 +17,9 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [total, setTotal] = useState(0);
   const [filters, setFilters] = useState({ month: "", category: "" });
-  const { user, token, userid } = useContext(AuthContext);
+  const { user, token, userid} = useContext(AuthContext);
+
+
 
 
   return(
