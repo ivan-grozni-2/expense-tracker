@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import TransactionForm from "../components/TransactionForm";
 import TransactionTable from "../components/TransactionTable";
+import CategoryAdd from "../components/CategoryAdd";
 import Chart from "../components/Chart";
 import Filters from "../components/Filters";
 import AuthContext from "../context/AuthContext";
@@ -78,7 +79,15 @@ function Dashboard() {
                     "Authorization": `Bearer ${token}`
                 }
             });
+
             setTotal(data4.total);
+            const data5 = await authFetch(`http://localhost:5000/categories?${query}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            setCategories(data5);
 
 
         } catch (err) {
@@ -106,10 +115,15 @@ function Dashboard() {
     };
 
     return (
-        <div style={{ margin: "2rem" }}>
+        <div style={{ margin: "5rem" }}>
             <button onClick={async () => { await logout() }}> log out </button>
             <h1> Expense Tracker</h1>
             <Filters categories={categories} onFilter={fetchTransactions} />
+            <CategoryAdd
+                setCategories={setCategories}
+                fetchTransactions={fetchTransactions}
+                filters={filters}
+            />
             <TransactionForm
                 transactions={transactions}
                 setTransactions={setTransactions}
@@ -124,8 +138,8 @@ function Dashboard() {
                 categories={categories}
                 fetchTransactions={fetchTransactions}
                 filters={filters}
+                total={total}
             />
-            <h3>TOTAL = ${total}</h3>
             <Chart data={summary}
                 total={total}
                 type="pie"

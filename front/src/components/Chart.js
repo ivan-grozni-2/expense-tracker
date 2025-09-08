@@ -48,16 +48,6 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
         return filtered;
     }
 
-    function correctdata() {
-        if (data.length != 0) {
-            data.forEach((e) => {
-                if (e.total < 0) {
-                    e.total = (e.total * -1);
-                }
-            });
-        }
-    }
-
     function total() {
         let total = 0;
         data.forEach((d) => {
@@ -76,7 +66,6 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
                         <p> no summary</p>
                     ) : (
                         <>
-                            <pre>{JSON.stringify(data, null, 2)}</pre>
                             <div style={{ display: "flex", flexDirection: "row" }}>
                                 <div style={{ display: "flex", flexDirection: "column" }}>
                                     <h3>Incomes</h3>

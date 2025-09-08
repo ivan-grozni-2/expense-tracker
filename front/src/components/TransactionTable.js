@@ -1,12 +1,13 @@
 import React, { useState, useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
-function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters }) {
+function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters, total }) {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "" });
   const [sorting, setSorting] = useState({ column: "", direction: 1 });
   const [arrowDirection, setArrowDirection] = useState({ id: "-", date: "-", amount: "-", category_name: "-", category_type:"-" })
   const { user, token, userid } = useContext(AuthContext);
+  const [note, setNote] = useState({})
 
   const startEditing = (transaction) => {
     setEditingId(transaction.id);
@@ -87,7 +88,19 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     console.log("dc : ", dc);
   };
 
-  return (<>{transactions.length ?
+  function viewNote(id){
+    let n = "";
+    setNote({});
+    let name = "CATEGORY : " + transactions[id].category_name;
+    let note = "" + transactions[id].note;
+    setNote({...note, note:n});
+    n = "DATE : " + transactions[id].date.split("T")[0];
+    setNote({...note, date:n, category_name:name, note :note});
+  }
+
+  
+
+  return (<><div style = {{display: "flex"}} >{transactions.length ?
     (<table border="1" cellPadding="5">
       <thead>
         <tr>
@@ -100,8 +113,8 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
         </tr>
       </thead>
       <tbody>
-        {transactions.map((t) => (
-          <tr key={t.id}>
+        {transactions.map((t, i) => (
+          <tr key={t.id} onClick={() => viewNote(i)}>
             <td>{t.id}</td>
             <td>
               {editingId === t.id ? (
@@ -154,7 +167,17 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
       </tbody>
     </table>) : (
       <p> no transaction please add a new one</p>
-    )}</>
+    )}
+    <div style={{alignSelf: "flex-start", position: "-webkit-sticky", position:"sticky", top : "-20px",  margin : 10, textAlign: "center", width : "50%"}}>
+      <h3>Total is {total}</h3>
+      <div style = {{textAlign: "left"}}>
+      <h4>{note.date}</h4>
+      <h4>{note.category_name}</h4>
+      <p>{note.note}</p>
+      </div>
+    </div>
+    </div>
+    </>
   );
 }
 
