@@ -5,11 +5,10 @@ function Filters({categories, onFilter}){
     const[startmonth, setStartMonth] = useState("");
     const[endmonth, setEndMonth] = useState("");
     const[category, setCategory] = useState("");
+    const[revenue, setRevenue] = useState("");
 
     const handleFilter = () => {
-        onFilter({startmonth, endmonth, category_id: category});
-        
-        console.log("filters:", { startmonth, endmonth, category_id: category })
+        onFilter({startmonth, endmonth, category_id: category, revenue});
     };
 
 
@@ -17,7 +16,8 @@ function Filters({categories, onFilter}){
         setStartMonth("");
         setEndMonth("");
         setCategory("");
-        onFilter({startmonth: "", endmonth: "", category_id: ""});
+        setRevenue("");
+        onFilter({startmonth: "", endmonth: "", category_id: "", revenue:""});
     };
 
     return(
@@ -40,9 +40,18 @@ function Filters({categories, onFilter}){
                     <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
             </select>
+            
             <button onClick={handleFilter}>Apply</button>
             <button onClick={handleReset}>Reset</button>
         </div>
+        <div>
+                <input type="radio" name="revenue" value="income" checked = {revenue == "income"} onChange={(e) => setRevenue("income")}/>
+                <label >income</label><br/>
+                <input type="radio" name="revenue" value="expense" checked = {revenue == "expense"} onChange={(e) => setRevenue("expense")}/>
+                <label >expense</label><br/>
+                <input type="radio" name="revenue" value="income" checked = {revenue == ""} onChange={(e) => setRevenue("")}/>
+                <label >all</label><br/><br/>
+            </div>
 </>
     );
 

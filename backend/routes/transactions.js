@@ -49,20 +49,18 @@ router.get("/export/csv", authMiddleware, (req, res) => {
 
 router.get("/", authMiddleware, (req, res) => {
 
-  const { startmonth, endmonth, category_id } = req.query;
+  const { startmonth, endmonth, category_id, revenue } = req.query;
   const params = [];
   const user = req.user.id;
   params.push(user);
 
   
-  console.log("what is the sql ", req.user);
-
-  let sql = "SELECT t.*, c.name AS category_name FROM transactions t LEFT JOIN categories c ON t.category_id = c.id ";
+  let sql = "SELECT t.*, c.name AS category_name, c.type AS category_type FROM transactions t LEFT JOIN categories c ON t.category_id = c.id ";
 
     const conditions = [];
     conditions.push("WHERE t.user_id = ?");
 
-  if ((startmonth && endmonth) || category_id) {
+  if ((startmonth && endmonth) || category_id || revenue) {
 
     if (startmonth && endmonth) {
       conditions.push(" DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ");
@@ -72,10 +70,14 @@ router.get("/", authMiddleware, (req, res) => {
       conditions.push("t.category_id = ?");
       params.push(category_id);
     }
+    if(revenue) {
+      conditions.push(" c.type = ? ");
+      params.push(revenue);
+    }
 
+  }
     sql += " " + conditions.join(" AND ");
     sql += " ORDER BY t.id ASC"
-  }
 
   db.query(sql, params, (err, result) => {
 
@@ -90,8 +92,8 @@ router.get("/", authMiddleware, (req, res) => {
 });
 
 router.get("/total", authMiddleware, (req, res) => {
-  let sql = "SELECT SUM(t.amount) as total FROM transactions t WHERE t.user_id = ? "
-  const { startmonth, endmonth, category_id } = req.query;
+  let sql = "SELECT SUM(IF(c.type = 'income', t.amount, -t.amount)) as total FROM transactions t LEFT JOIN categories c ON t.category_id = c.id WHERE t.user_id = ? "
+  const { startmonth, endmonth, category_id, revenue } = req.query;
   const params = [];
   const user = req.user.id;
   params.push(user);
@@ -103,6 +105,10 @@ router.get("/total", authMiddleware, (req, res) => {
   if (category_id) {
     sql += " AND category_id = ?";
     params.push(category_id);
+  }
+  if(revenue) {
+    sql += " AND c.type = ? ";
+    params.push(revenue);
   }
 
   db.query(sql, params, (err, result) => {
@@ -118,13 +124,13 @@ router.get("/total", authMiddleware, (req, res) => {
 
 router.get("/summary", authMiddleware, (req, res) => {
   let sql = `
-    SELECT c.name AS category, SUM(t.amount) + 0 AS total
+    SELECT c.name AS category, c.type AS category_type, SUM(if(c.type = 'income', t.amount, -t.amount)) + 0 AS total
     FROM transactions t
     LEFT JOIN categories c ON t.category_id = c.id
     WHERE t.user_id = ? 
   `;
 
-  const { startmonth, endmonth } = req.query;
+  const { startmonth, endmonth, revenue } = req.query;
   const params = [];
   const user = req.user.id;
   params.push(user);
@@ -133,8 +139,12 @@ router.get("/summary", authMiddleware, (req, res) => {
     sql += " AND DATE_FORMAT(t.date, '%Y-%m') BETWEEN ? AND ? ";
     params.push(startmonth, endmonth);
   }
+  if(revenue) {
+    sql += " AND c.type = ? ";
+    params.push(revenue);
+  }
 
-  sql += "GROUP BY c.name";
+  sql += "GROUP BY c.name, c.type";
 
   db.query(sql, params, (err, rows) => {
     if (err) {
@@ -147,15 +157,16 @@ router.get("/summary", authMiddleware, (req, res) => {
 
 router.get("/summary/monthly", authMiddleware, (req, res) => {
   let sql = `
-    SELECT DATE_FORMAT(date, '%Y-%m-%d') AS day, SUM(amount) AS total
-    FROM transactions
+    SELECT DATE_FORMAT(t.date, '%Y-%m-%d') AS day, SUM(if(c.type = 'income', t.amount, -t.amount)) AS total
+    FROM transactions t
+    LEFT JOIN categories c ON t.category_id = c.id
     WHERE user_id = ?
     `
   const backsql = `
     GROUP BY day
     ORDER BY day
   `;
-  const { startmonth, endmonth, category_id } = req.query;
+  const { startmonth, endmonth, category_id, revenue } = req.query;
   const params = [];
   const user = req.user.id;
   params.push(user);
@@ -167,6 +178,10 @@ router.get("/summary/monthly", authMiddleware, (req, res) => {
   if (startmonth && endmonth) {
     sql += " AND DATE_FORMAT(date, '%Y-%m') BETWEEN ? AND ? ";
     params.push(startmonth, endmonth);
+  }
+  if(revenue) {
+    sql += " AND c.type = ? ";
+    params.push(revenue);
   }
 
   sql += backsql;

@@ -1,9 +1,9 @@
 //import React, { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, ReferenceLine } from "recharts";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28EFF"];
 
-function Chart({ data, type, title }) {
+function Chart({ data, type, title, income, setincome, expense, setexpense }) {
     /*const [summary, setSummary] = useState([]);
 
     useEffect(() => {
@@ -19,17 +19,44 @@ function Chart({ data, type, title }) {
     }, []);
 */
 
-if(data.error){
-    return(<>
-     {data.error && <h3 style={{color:"red"}}> {data.error} </h3>};
-    </>);
-}
+    if (data.error) {
+        return (<>
+            {data.error && <h3 style={{ color: "red" }}> {data.error} </h3>};
+        </>);
+    }
     if (data.length !== 0) {
-        console.log("data :", data);
-    
         data = data.map((d) => ({ ...d, total: Number(d.total) }));
+        data.map((e) => {
+
+        })
     }
 
+    const datarev = (type) => {
+        let filtered = [];
+        filtered = data.map((e) => ({ ...e }))
+        filtered = filtered.map((e) => {
+            if (e.category_type == type) return (e);
+        });
+        filtered = filtered.filter((f) => f != undefined);
+        if (filtered.length != 0) {
+            filtered.forEach((e) => {
+                if (e.total < 0) {
+                    e.total = (e.total * -1);
+                }
+            });
+        }
+        return filtered;
+    }
+
+    function correctdata() {
+        if (data.length != 0) {
+            data.forEach((e) => {
+                if (e.total < 0) {
+                    e.total = (e.total * -1);
+                }
+            });
+        }
+    }
 
     function total() {
         let total = 0;
@@ -50,41 +77,67 @@ if(data.error){
                     ) : (
                         <>
                             <pre>{JSON.stringify(data, null, 2)}</pre>
-                            <PieChart width={400} height={400}>
-                                <Pie
+                            <div style={{ display: "flex", flexDirection: "row" }}>
+                                <div style={{ display: "flex", flexDirection: "column" }}>
+                                    <h3>Incomes</h3>
+                                    <PieChart width={400} height={400}>
+                                        <Pie
+                                            data={datarev("income")}
+                                            dataKey="total"
+                                            nameKey="category"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={120}
+                                            fill="#8884d8"
+                                            label
+                                        >
+                                            {datarev("income").map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend />
+                                        <XAxis dataKey="Category" />
+                                        <Bar dataKey="Legend" fill="#82ca9d" />
+                                    </PieChart>
+                                    <h3>Expenses</h3>
+                                    <PieChart width={400} height={400}>
+                                        <Pie
+                                            data={datarev("expense")}
+                                            dataKey="total"
+                                            nameKey="category"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={120}
+                                            fill="#8884d8"
+                                            label
+                                        >
+                                            {datarev("expense").map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend />
+                                        <XAxis dataKey="Category" />
+                                        <Bar dataKey="legend" fill="#82ca9d" />
+                                    </PieChart>
+                                </div>
+
+                                <BarChart
+                                    width={500}
+                                    height={500}
                                     data={data}
-                                    dataKey="total"
-                                    nameKey="category"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={120}
-                                    fill="#8884d8"
-                                    label
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                                 >
-                                    {data.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend />
-                                <XAxis dataKey="Category" />
-                                <Bar dataKey="Total" fill="#82ca9d" />
-                            </PieChart>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="category" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Bar dataKey="total" fill="#82ca9d" />
 
-                            <BarChart
-                                width={500}
-                                height={500}
-                                data={data}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="category" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="total" fill="#82ca9d" />
-
-                            </BarChart>
+                                </BarChart>
+                            </div>
                         </>)}
                 </div>
 
@@ -105,6 +158,7 @@ if(data.error){
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
+                                <ReferenceLine y={0} stroke="black" label="Threshold" />
                                 <Line dataKey="total" stroke="#8884d8" />
 
                             </LineChart>

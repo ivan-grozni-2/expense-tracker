@@ -3,11 +3,7 @@ import TransactionForm from "../components/TransactionForm";
 import TransactionTable from "../components/TransactionTable";
 import Chart from "../components/Chart";
 import Filters from "../components/Filters";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import AuthContext from "../context/AuthContext";
-import Login from "../Auth/Login";
-import Register from "../Auth/Register";
-import { fetchTransactions } from "../App"
 
 function Dashboard() {
     const [transactions, setTransactions] = useState([]);
@@ -16,6 +12,8 @@ function Dashboard() {
     const [categories, setCategories] = useState([]);
     const [total, setTotal] = useState(0);
     const [filters, setFilters] = useState({ month: "", category: "" });
+    const [income, setIncome] = useState([]);
+    const [expense, setExpense] = useState([])
     const { user, token, userid } = useContext(AuthContext);
     const { logout } = useContext(AuthContext);
 
@@ -128,8 +126,24 @@ function Dashboard() {
                 filters={filters}
             />
             <h3>TOTAL = ${total}</h3>
-            <Chart data={summary} total={total} type="pie" title="Expenses by Category" />
-            <Chart data={month} total={total} type="line" title="Monthly Expenses" />
+            <Chart data={summary}
+                total={total}
+                type="pie"
+                title="Expenses by Category"
+                income={income}
+                setIncome={setIncome}
+                expense={expense}
+                setExpense={setExpense}
+            />
+            <Chart data={month}
+                total={total}
+                type="line"
+                title="Monthly Expenses"
+                income={income}
+                setIncome={setIncome}
+                expense={expense}
+                setExpense={setExpense}
+            />
         </div>
     );
 }

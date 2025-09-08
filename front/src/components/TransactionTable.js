@@ -5,7 +5,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "" });
   const [sorting, setSorting] = useState({ column: "", direction: 1 });
-  const [arrowDirection, setArrowDirection] = useState({ id: "-", date: "-", amount: "-", category_name: "-" })
+  const [arrowDirection, setArrowDirection] = useState({ id: "-", date: "-", amount: "-", category_name: "-", category_type:"-" })
   const { user, token, userid } = useContext(AuthContext);
 
   const startEditing = (transaction) => {
@@ -56,7 +56,13 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     let dc = (Math.abs(sorting.direction - 1));
 
     setSorting({ column: key, direction: dc });
-    setArrowDirection({ id: "-", date: "-", amount: "-", category_name: "-" });
+    setArrowDirection( {...arrowDirection, id: "-", date: "-", amount: "-", category_name: "-", category_type: "-" });
+    arrowDirection.amount = "-";
+    arrowDirection.id = "-";
+    arrowDirection.category_name = "-";
+    arrowDirection.category_type = "-";
+    arrowDirection.date = "-";
+    console.log("ARROWS ", arrowDirection)
     setArrowDirection({ ...arrowDirection, [key]: arrow[sorting.direction] });
 
     setTransactions(transactions.sort((a, b) => {
@@ -64,12 +70,12 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
       let bk = b[key];
       if (sorting.direction === 0) {
         if (key === "date") return new Date(bk) - new Date(ak);
-        if (key === "category_name") return bk.localeCompare(ak)
+        if (key === "category_name"|| key ==="categort_type") return bk.localeCompare(ak);
 
         return bk - ak;
       } else {
         if (key === "date") return new Date(ak) - new Date(bk);
-        if (key === "category_name") return ak.localeCompare(bk)
+        if (key === "category_name"|| key ==="category_type") return ak.localeCompare(bk);
 
         return ak - bk;
       }
@@ -81,8 +87,6 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     console.log("dc : ", dc);
   };
 
-  console.log("transactions :", transactions);
-
   return (<>{transactions.length ?
     (<table border="1" cellPadding="5">
       <thead>
@@ -91,6 +95,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
           <th onClick={() => handleSort("amount")}>Amount {arrowDirection.amount}</th>
           <th onClick={() => handleSort("category_name")}>Category {arrowDirection.category_name}</th>
           <th onClick={() => handleSort("date")}>Date {arrowDirection.date}</th>
+          <th onClick={() => handleSort("category_type")}>revenue type {arrowDirection.category_type}</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -127,6 +132,9 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
                   onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
                 />
               ) : (t.date ? t.date.split("T")[0] : "")}
+            </td>
+            <td>
+              {editingId === t.id ? (t.category_type):(t.category_type)}
             </td>
             <td>
               {editingId === t.id ? (
