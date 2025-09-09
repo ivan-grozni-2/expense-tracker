@@ -1,8 +1,8 @@
 //import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, ReferenceLine } from "recharts";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28EFF"];
-
+const greens = ["#D1FAE5", "#A7F3D0", "#34D399", "#059669", "#065F46"]
+const reds = ["#FEE2E2", "#FCA5A5", "#F87171", "#DC2626", "#7F1D1D"]
 function Chart({ data, type, title, income, setincome, expense, setexpense }) {
     /*const [summary, setSummary] = useState([]);
 
@@ -56,6 +56,29 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
         return (Math.round(total * 100)) / 100;
     }
 
+    function color(data, value, revenue){
+        let max = 0;
+        let sum = 0;
+        data.forEach((e) => {
+            if(max<e.total)
+            max = e.total;
+        });
+        data.forEach((e) => {
+            sum += e.total;
+        });
+
+        const avg = (value/max);
+
+        const shade = 255 * (1 - avg);
+
+        if(revenue == "income"){
+        return "rgb("+ (((6-210)*avg)+210) +","+ (((120-250)*avg)+250) +","+ (((40-230)*avg)+240) +")";
+    }
+    
+    return "rgb("+ (((170-255)*avg)+255) +","+ (((30-225)*avg)+225) +","+ (((30-225)*avg)+225) +")";
+
+    }
+
     return (
         <>
             <h2>{title}</h2>
@@ -80,8 +103,8 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
                                             fill="#8884d8"
                                             label
                                         >
-                                            {datarev("income").map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            {datarev("income").map((entry, index, array) => (
+                                                <Cell key={`cell-${index}`} fill={color(array, entry.total, "income")} />
                                             ))}
                                         </Pie>
                                         <Tooltip />
@@ -101,8 +124,8 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
                                             fill="#8884d8"
                                             label
                                         >
-                                            {datarev("expense").map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            {datarev("expense").map((entry, index, array) => (
+                                                <Cell key={`cell-${index}`} fill={color(array, entry.total, "expense")} />
                                             ))}
                                         </Pie>
                                         <Tooltip />

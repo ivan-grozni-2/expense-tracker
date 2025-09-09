@@ -41,7 +41,7 @@ function CategoryAdd({ setCategories, fetchTransactions, filter }) {
         <div style={{ marginBottom: "15px" }}>
             <form onSubmit={(e) => handleAdd(e)}>
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Category name" />
-                <select value={type} onClick={(e) => setType(e.target.value)}>
+                <select value={type} onClick={(e) => setType(e.target.value)} onChange={(e) => setType(e.target.value)}>
                     <option key="income" value="income">Income</option>
                     <option key="expense" value="expense">Expense</option>
                 </select>

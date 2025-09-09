@@ -5,9 +5,10 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "" });
   const [sorting, setSorting] = useState({ column: "", direction: 1 });
-  const [arrowDirection, setArrowDirection] = useState({ id: "-", date: "-", amount: "-", category_name: "-", category_type:"-" })
+  const [arrowDirection, setArrowDirection] = useState({ id: "-", date: "-", amount: "-", category_name: "-", category_type: "-" })
   const { user, token, userid } = useContext(AuthContext);
   const [note, setNote] = useState({})
+  const [message, setMessage] = useState("")
 
   const startEditing = (transaction) => {
     setEditingId(transaction.id);
@@ -31,24 +32,29 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
         if (!res.ok) throw new Error("Failed to update");
         return res.json();
       })
-      .then(() => {
+      .then((data) => {
         setTransactions(transactions.map((t) => t.id === id ? { ...t, ...editForm, id } : t));
+        setMessage(data.message);
         setEditingId(null);
       })
-      .catch((err) => console.error("Error updating transaction:", err));
-      fetchTransactions(filters);
+      .catch((err) => {
+        console.error("Error updating transaction:", err)
+        setMessage(err);
+      });
+    fetchTransactions(filters);
   };
 
   const handleDelete = (id) => {
-    fetch(`http://localhost:5000/transactions/${id}`, { 
+    fetch(`http://localhost:5000/transactions/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
-      }, })
+      },
+    })
       .then(() => setTransactions(transactions.filter((t) => t.id !== id)))
       .catch((err) => console.error("Error deleting transaction:", err));
-      fetchTransactions(filters);
+    fetchTransactions(filters);
   };
 
   const handleSort = (key) => {
@@ -57,7 +63,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     let dc = (Math.abs(sorting.direction - 1));
 
     setSorting({ column: key, direction: dc });
-    setArrowDirection( {...arrowDirection, id: "-", date: "-", amount: "-", category_name: "-", category_type: "-" });
+    setArrowDirection({ ...arrowDirection, id: "-", date: "-", amount: "-", category_name: "-", category_type: "-" });
     arrowDirection.amount = "-";
     arrowDirection.id = "-";
     arrowDirection.category_name = "-";
@@ -71,12 +77,12 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
       let bk = b[key];
       if (sorting.direction === 0) {
         if (key === "date") return new Date(bk) - new Date(ak);
-        if (key === "category_name"|| key ==="categort_type") return bk.localeCompare(ak);
+        if (key === "category_name" || key === "categort_type") return bk.localeCompare(ak);
 
         return bk - ak;
       } else {
         if (key === "date") return new Date(ak) - new Date(bk);
-        if (key === "category_name"|| key ==="category_type") return ak.localeCompare(bk);
+        if (key === "category_name" || key === "category_type") return ak.localeCompare(bk);
 
         return ak - bk;
       }
@@ -88,23 +94,25 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     console.log("dc : ", dc);
   };
 
-  function viewNote(id){
+  function viewNote(id) {
     let n = "";
     setNote({});
     let name = "CATEGORY : " + transactions[id].category_name;
     let note = "" + transactions[id].note;
-    setNote({...note, note:n});
+    setNote({ ...note, note: n });
     n = "DATE : " + transactions[id].date.split("T")[0];
-    setNote({...note, date:n, category_name:name, note :note});
+    setNote({ ...note, date: n, category_name: name, note: note });
   }
 
-  
+  console.log("transactions :", transactions)
 
-  return (<><div style = {{display: "flex"}} >{transactions.length ?
+
+
+  return (<><div style={{ display: "flex" }} >{transactions.length ?
     (<table border="1" cellPadding="5">
       <thead>
         <tr>
-          <th onClick={() => handleSort("id")}>ID {arrowDirection.id}</th>
+          <th>ID</th>
           <th onClick={() => handleSort("amount")}>Amount {arrowDirection.amount}</th>
           <th onClick={() => handleSort("category_name")}>Category {arrowDirection.category_name}</th>
           <th onClick={() => handleSort("date")}>Date {arrowDirection.date}</th>
@@ -115,7 +123,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
       <tbody>
         {transactions.map((t, i) => (
           <tr key={t.id} onClick={() => viewNote(i)}>
-            <td>{t.id}</td>
+            <td>{i + 1}</td>
             <td>
               {editingId === t.id ? (
                 <input
@@ -147,7 +155,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
               ) : (t.date ? t.date.split("T")[0] : "")}
             </td>
             <td>
-              {editingId === t.id ? (t.category_type):(t.category_type)}
+              {editingId === t.id ? (t.category_type) : (t.category_type)}
             </td>
             <td>
               {editingId === t.id ? (
@@ -168,16 +176,17 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     </table>) : (
       <p> no transaction please add a new one</p>
     )}
-    <div style={{alignSelf: "flex-start", position: "-webkit-sticky", position:"sticky", top : "-20px",  margin : 10, textAlign: "center", width : "50%"}}>
+    <div style={{ alignSelf: "flex-start", position: "-webkit-sticky", position: "sticky", top: "-20px", margin: 10, textAlign: "center", width: "50%" }}>
+      <p>{message}</p>
       <h3>Total is {total}</h3>
-      <div style = {{textAlign: "left"}}>
-      <h4>{note.date}</h4>
-      <h4>{note.category_name}</h4>
-      <p>{note.note}</p>
+      <div style={{ textAlign: "left" }}>
+        <h4>{note.date}</h4>
+        <h4>{note.category_name}</h4>
+        <p>{note.note}</p>
       </div>
     </div>
-    </div>
-    </>
+  </div>
+  </>
   );
 }
 

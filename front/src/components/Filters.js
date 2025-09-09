@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function Filters({categories, onFilter}){
+function Filters({categories, onFilter, fetchTransactions}){
 
     const[startmonth, setStartMonth] = useState("");
     const[endmonth, setEndMonth] = useState("");
@@ -9,6 +9,7 @@ function Filters({categories, onFilter}){
 
     const handleFilter = () => {
         onFilter({startmonth, endmonth, category_id: category, revenue});
+        fetchTransactions(onFilter);
     };
 
 
@@ -18,6 +19,7 @@ function Filters({categories, onFilter}){
         setCategory("");
         setRevenue("");
         onFilter({startmonth: "", endmonth: "", category_id: "", revenue:""});
+        fetchTransactions(onFilter);
     };
 
     return(

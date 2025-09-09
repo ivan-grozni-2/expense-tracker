@@ -1,0 +1,28 @@
+.navbar{
+    display : flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-neutral);
+    padding: 1rem 2rem;
+    color : white;
+}
+
+.logo{
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.nav-links{
+    list-style:none;
+    display:flex;
+    gap:1.5rem;
+}
+
+.nav-links li{
+    cursor: pointer;
+    transition:color 0.3s;
+}
+.nav-links list-style:hover{
+    color: var(--color-income)
+}
+

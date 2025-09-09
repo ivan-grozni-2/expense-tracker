@@ -1,0 +1,29 @@
+.dashboard-cards{
+    display:flex;
+    gap: 1.5rem;
+    margin:2rem 0;
+}
+.cards{
+    flex: 1;
+    padding: 1.5rem;
+    border-radius: 10px;
+    color: #333;
+    font-size: 1.2rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+}
+
+.income-card{
+    background-color: var(--color-income-light);
+    border-left: var(--color-income);
+}
+.expense-card{
+    background-color: var(--color-expense-light);
+    border-left: var(--color-expense);
+}
+.total-card{
+    background-color: var(--color-neutral-light);
+    border-left: var(--color-neutral);
+}
+

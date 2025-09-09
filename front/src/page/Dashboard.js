@@ -5,6 +5,9 @@ import CategoryAdd from "../components/CategoryAdd";
 import Chart from "../components/Chart";
 import Filters from "../components/Filters";
 import AuthContext from "../context/AuthContext";
+import Navbar from "../components/navbar";
+import DashboardCards from "../components/DashboardCards";
+import "../styles/Dashboard.css"
 
 function Dashboard() {
     const [transactions, setTransactions] = useState([]);
@@ -17,6 +20,7 @@ function Dashboard() {
     const [expense, setExpense] = useState([])
     const { user, token, userid } = useContext(AuthContext);
     const { logout } = useContext(AuthContext);
+    const [exportMessage, setExportMessage] = ("")
 
 
 
@@ -105,20 +109,48 @@ function Dashboard() {
 
     function handleExport() {
         let query = "";
-        if (filters.month || filters.category) {
+        if (filters.startmonth || filters.category_id || filters.endmonth || filters.revenue) {
             const params = new URLSearchParams(filters).toString();
             query = "?" + params;
 
         }
 
-        window.open(`http://localhost:5000/transactions/export/csv${query}`, "_blank")
+        /*fetch(`http://localhost:5000/transactions/export/csv${query}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        }, "_blank")
+            .then((res) => res.json())
+            .then((data) =>{})
+            .catch((err) => console.error("Error fetching categories:", err));*/
+
+        fetch(`http://localhost:5000/transactions/export/csv${query}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+            .then((res) => res.blob())
+            .then((blob) => {
+
+                console.log("the filters ", blob);
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "transactions.csv";
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch((error) => setExportMessage("error exporting"));
+
     };
 
     return (
-        <div style={{ margin: "5rem" }}>
-            <button onClick={async () => { await logout() }}> log out </button>
+        <div style={{ marginLeft: "5rem" }}>
             <h1> Expense Tracker</h1>
-            <Filters categories={categories} onFilter={fetchTransactions} />
+            <Navbar logout={logout}/>
+            <DashboardCards transactions={transactions}/>
+            <Filters categories={categories} onFilter={fetchTransactions} fetchTransactions={fetchTransactions} />
             <CategoryAdd
                 setCategories={setCategories}
                 fetchTransactions={fetchTransactions}
@@ -131,7 +163,7 @@ function Dashboard() {
                 fetchTransactions={fetchTransactions}
                 filters={filters}
             />
-            <button onClick={handleExport}> Export </button>
+            <button onClick={() => handleExport()}> Export </button>
             <TransactionTable
                 transactions={transactions}
                 setTransactions={setTransactions}
