@@ -1,0 +1,52 @@
+.hamburger {
+    display: flex;
+    padding: 10px;
+    width: 135px;
+    height: 0;
+    max-height: 0;
+    position: fixed;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    text-align: center;
+    border: 2px solid var(--color-income);
+    transition: all 0.7s ease-in-out;
+    background-color: var(--color-income-light);
+    margin: 0;
+}
+
+.hamburger.active {
+    display: block;
+    background-color: white;
+    max-height: 100%;
+    height: 100%;
+    z-index: 1;
+}
+.editor{
+    width: 100%;
+    flex-grow: 1;
+    flex-basis: 100%;
+}
+
+.select {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    list-style-type: none;
+    color: var(--color-income);
+    width: 100%;
+    padding-left: 0;
+}
+.select li{
+    flex-wrap: wrap;
+    width: 100%;
+    padding-bottom: 10px;
+    height: auto;
+    border-top: 3px solid var(--color-income);
+    transition: all ease 0.5s;
+    cursor: pointer;
+}
+.select li:hover{
+    background-color: var(--color-income-light);
+    color: var(--color-income);
+}

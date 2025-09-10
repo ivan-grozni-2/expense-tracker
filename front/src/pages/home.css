@@ -1,0 +1,54 @@
+.home{
+    translate: 0 70px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    background-color: var(--color-income-light);
+    padding: 0;
+    margin: 0;
+}
+.home.shrink{
+    max-width:  calc(100% - 165px)  ;
+    width: calc(100% - 165px);
+    translate: 155px 70px;
+}
+
+.dashboard-cards{
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background-color: white;
+    margin: 20px;
+    border-radius: 5px;
+}
+.card{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 10px;
+    color: #333;
+    font-size: 1.2rem;
+    text-align: center;
+
+}
+.cards{
+    flex: 0.5;
+    padding: 1.5rem;
+    border-radius: 10px;
+    color: #333;
+    font-size: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.income-card{
+    background-color: var(--color-income-light);
+    border-bottom: 4px solid var(--color-income);
+}
+.expense-card{
+    background-color: var(--color-expense-light);
+    border-bottom: 4px solid var(--color-expense);
+
+}
+

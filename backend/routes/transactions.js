@@ -47,6 +47,13 @@ router.get("/export/csv", authMiddleware, (req, res) => {
 
 });
 
+router.get("/user", authMiddleware, (req,res) => {
+
+console.log(req.user);
+  const user = req.user.username;
+  res.json(user);
+});
+
 router.get("/", authMiddleware, (req, res) => {
 
   const { startmonth, endmonth, category_id, revenue } = req.query;
@@ -80,6 +87,26 @@ router.get("/", authMiddleware, (req, res) => {
     sql += " ORDER BY t.id ASC"
 
   db.query(sql, params, (err, result) => {
+
+
+    if (err) {
+      console.error("error getting transaction :", err);
+      return res.status(500).json({ error: "transaction error" });
+    }
+    res.json(result);
+  });
+
+});
+
+
+router.get("/all", authMiddleware, (req, res) => {
+
+  const user = req.user.id;
+  
+  let sql = "SELECT t.*, c.name AS category_name, c.type AS category_type FROM transactions t LEFT JOIN categories c ON t.category_id = c.id WHERE t.user_id = ? ";
+
+
+  db.query(sql, user, (err, result) => {
 
 
     if (err) {

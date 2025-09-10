@@ -7,7 +7,9 @@ import Filters from "../components/Filters";
 import AuthContext from "../context/AuthContext";
 import Navbar from "../components/navbar";
 import DashboardCards from "../components/DashboardCards";
+import Hamburger from "../Navigation/Hamburger";
 import "../styles/Dashboard.css"
+import Home from "../pages/Home";
 
 function Dashboard() {
     const [transactions, setTransactions] = useState([]);
@@ -20,7 +22,10 @@ function Dashboard() {
     const [expense, setExpense] = useState([])
     const { user, token, userid } = useContext(AuthContext);
     const { logout } = useContext(AuthContext);
-    const [exportMessage, setExportMessage] = ("")
+    const [exportMessage, setExportMessage] = ("");
+    const [username, setUsername] = useState("");
+    const [burgerClass, setBurgerClass] = useState("hamburger");
+    const [allTransactions, setAllTransaction] = useState([])
 
 
 
@@ -93,11 +98,28 @@ function Dashboard() {
             });
             setCategories(data5);
 
+            const data6 = await authFetch(`http://localhost:5000/transactions/user`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            setUsername(data6)
+
+            const data7 = await authFetch(`http://localhost:5000/transactions/all`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            setAllTransaction(data7)
+
 
         } catch (err) {
             console.error("Error fetching:", err);
         }
     };
+
 
     useEffect(() => {
         fetchTransactions();
@@ -107,6 +129,8 @@ function Dashboard() {
             .catch((err) => console.error("Error fetching categories:", err));
     }, []);
 
+
+
     function handleExport() {
         let query = "";
         if (filters.startmonth || filters.category_id || filters.endmonth || filters.revenue) {
@@ -114,16 +138,6 @@ function Dashboard() {
             query = "?" + params;
 
         }
-
-        /*fetch(`http://localhost:5000/transactions/export/csv${query}`, {
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        }, "_blank")
-            .then((res) => res.json())
-            .then((data) =>{})
-            .catch((err) => console.error("Error fetching categories:", err));*/
 
         fetch(`http://localhost:5000/transactions/export/csv${query}`, {
             headers: {
@@ -145,7 +159,7 @@ function Dashboard() {
 
     };
 
-    return (
+    /*return (
         <div style={{ marginLeft: "5rem" }}>
             <h1> Expense Tracker</h1>
             <Navbar logout={logout}/>
@@ -191,7 +205,15 @@ function Dashboard() {
                 setExpense={setExpense}
             />
         </div>
-    );
+    );*/
+    return (
+        <>
+            <Hamburger burgerClass={burgerClass} setBurgerClass={burgerClass} />
+            <Navbar logout={logout} username={username} burgerClass={burgerClass} setBurgerClass={setBurgerClass} />
+            <Home allTransactions={allTransactions} burgerClass={burgerClass}/>
+        </>
+
+    )
 }
 
 export default Dashboard;
