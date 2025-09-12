@@ -1,7 +1,9 @@
 import React, { useState, useContext } from "react";
 import AuthContext from "../context/AuthContext";
+import "./table.css"
+import Filters from "../components/Filters";
 
-function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters, total }) {
+function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters, total, burgerClass }) {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "" });
   const [sorting, setSorting] = useState({ column: "", direction: 1 });
@@ -9,6 +11,11 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
   const { user, token, userid } = useContext(AuthContext);
   const [note, setNote] = useState({})
   const [message, setMessage] = useState("")
+
+  let shrink = "transaction";
+
+  if (burgerClass === "hamburger active") shrink = "transaction shrink";
+  else shrink = "home"
 
   const startEditing = (transaction) => {
     setEditingId(transaction.id);
@@ -18,6 +25,10 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
       date: transaction.date ? transaction.date.split("T")[0] : new Date().toISOString().split("T")[0],
     });
   };
+  function color(type) {
+    if (type === "income") return "#4caf5055";
+    else return "#f4433655";
+}
 
   const handleSave = (id) => {
     fetch(`http://localhost:5000/transactions/${id}`, {
@@ -108,11 +119,13 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
 
 
 
-  return (<><div style={{ display: "flex" }} >{transactions.length ?
+  return (<div className={shrink} ><Filters categories={categories} onFilter={fetchTransactions} fetchTransactions={fetchTransactions}/>
+    <div className="table">
+    {transactions.length ?
     (<table border="1" cellPadding="5">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>No.</th>
           <th onClick={() => handleSort("amount")}>Amount {arrowDirection.amount}</th>
           <th onClick={() => handleSort("category_name")}>Category {arrowDirection.category_name}</th>
           <th onClick={() => handleSort("date")}>Date {arrowDirection.date}</th>
@@ -122,7 +135,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
       </thead>
       <tbody>
         {transactions.map((t, i) => (
-          <tr key={t.id} onClick={() => viewNote(i)}>
+          <tr key={t.id} onClick={() => viewNote(i)} style={{ backgroundColor: color(t.category_type) }}>
             <td>{i + 1}</td>
             <td>
               {editingId === t.id ? (
@@ -186,7 +199,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
       </div>
     </div>
   </div>
-  </>
+  </div>
   );
 }
 

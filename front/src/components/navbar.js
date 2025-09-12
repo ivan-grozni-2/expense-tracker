@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../styles/navbar.css";
 
-function Navbar({ logout, username, setBurgerClass, burgerClass }) {
+function Navbar({ logout, username, setBurgerClass, burgerClass, tabs, setTabs }) {
     const [menu, setMenu] = useState("menu")
     let toggle = false;
     let initials = username.slice(0,2);
@@ -25,6 +25,11 @@ function Navbar({ logout, username, setBurgerClass, burgerClass }) {
         }
     }
 
+    function current(x){
+        if(x === tabs) return "current";
+        return "";
+    }
+
     return (
         <div className="navigator">
             <section className="header">
@@ -38,9 +43,9 @@ function Navbar({ logout, username, setBurgerClass, burgerClass }) {
                 </div>
                 <nav className="navbar">
                     <ul className="nav-links">
-                        <li>Home</li>
-                        <li>Report</li>
-                        <li>transactions</li>
+                        <li className={current(0)} onClick={() => setTabs(0)}>Home</li>
+                        <li className={current(1)} onClick={() => setTabs(1)}>Report</li>
+                        <li className={current(2)} onClick={() => setTabs(2)}>transactions</li>
                     </ul>
                 </nav>
                 <div className="user">

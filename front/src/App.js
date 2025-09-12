@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import TransactionForm from "./components/TransactionForm";
-import TransactionTable from "./components/TransactionTable";
+import TransactionTable from "./tables/TransactionTable";
 import Chart from "./components/Chart";
 import Filters from "./components/Filters";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"

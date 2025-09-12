@@ -115,7 +115,7 @@
     border-style: bold;
     padding-top: 10px;
     padding-bottom: 0;
-    background: var(--color-income);
+    background-color: var(--color-income);
     transition:all ease 0.3s;
 }
 .nav-links li:hover{
@@ -172,5 +172,9 @@
 .user #logout:hover{
     width: 7rem;
     color:white;
+}
+.navbar .nav-links .current{
+    background-color: white;
+    color: var(--color-income);
 }
 

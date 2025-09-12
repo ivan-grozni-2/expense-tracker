@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import TransactionForm from "../components/TransactionForm";
-import TransactionTable from "../components/TransactionTable";
+import TransactionTable from "../tables/TransactionTable";
 import CategoryAdd from "../components/CategoryAdd";
 import Chart from "../components/Chart";
 import Filters from "../components/Filters";
@@ -26,6 +26,7 @@ function Dashboard() {
     const [username, setUsername] = useState("");
     const [burgerClass, setBurgerClass] = useState("hamburger");
     const [allTransactions, setAllTransaction] = useState([])
+    const [tabs, setTabs] = useState(0);
 
 
 
@@ -208,9 +209,38 @@ function Dashboard() {
     );*/
     return (
         <>
-            <Hamburger burgerClass={burgerClass} setBurgerClass={burgerClass} />
-            <Navbar logout={logout} username={username} burgerClass={burgerClass} setBurgerClass={setBurgerClass} />
-            <Home allTransactions={allTransactions} burgerClass={burgerClass}/>
+            <Hamburger
+                burgerClass={burgerClass}
+                setBurgerClass={burgerClass}
+                tabs={tabs}
+                setTabs={setTabs} />
+            <Navbar
+                logout={logout}
+                username={username}
+                burgerClass={burgerClass}
+                setBurgerClass={setBurgerClass}
+                tabs={tabs}
+                setTabs={setTabs}
+            />
+            <>
+                {tabs === 0 ? (<>
+                    <Home allTransactions={allTransactions} burgerClass={burgerClass} />
+                </>) : tabs === 1 ? (<>
+
+                </>) : tabs === 2 ? (<>
+                    <TransactionTable
+                        transactions={transactions}
+                        setTransactions={setTransactions}
+                        categories={categories}
+                        fetchTransactions={fetchTransactions}
+                        filters={filters}
+                        total={total}
+                        burgerClass={burgerClass}
+                    />
+                </>) : (
+                    <></>
+                )}
+            </>
         </>
 
     )
