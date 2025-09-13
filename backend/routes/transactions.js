@@ -93,6 +93,8 @@ router.get("/", authMiddleware, (req, res) => {
       console.error("error getting transaction :", err);
       return res.status(500).json({ error: "transaction error" });
     }
+    
+
     res.json(result);
   });
 

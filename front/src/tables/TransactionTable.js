@@ -23,7 +23,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     setEditForm({
       amount: transaction.amount,
       category_id: transaction.category_id ?? (categories[0]?.id || ""),
-      date: transaction.date ? transaction.date.split("T")[0] : new Date().toISOString().split("T")[0],
+      date: transaction.date ? transaction.date.split("T")[0] : new Date().split("T")[0],
       note: transaction.note || "",
     });
   };
@@ -145,7 +145,6 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
 
   };
 
-
   return (<div className={shrink} >
     <div className="transaction-tables-cards ">
       <Filters categories={categories} onFilter={fetchTransactions} fetchTransactions={fetchTransactions} vertical={true} />
@@ -240,6 +239,8 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
               noteButton ? (<>
                 <button onClick={() => {
                   setNoteButton(false);
+                  //console.log("the date is ", transactions[note.index].date ? transactions[note.index].date.split("T")[0] : new Date().split("T")[0]);
+                  //console.log("the date is ", transactions[note.index].date);
                   setNote({ ...note, note: editForm.note });
                   handleSave(note.id);
 
@@ -247,10 +248,12 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
                 <button onClick={() => setNoteButton(false)}>Cancel</button></>
               ) : (
                 <button onClick={() => {
-                  setNoteButton(true); setEditForm({
+                  setNoteButton(true); 
+                  setEditingId(null);
+                  setEditForm({
                     amount: transactions[note.index].amount,
                     category_id: transactions[note.index].category_id ?? (categories[0]?.id || ""),
-                    date: transactions[note.index].date ? transactions[note.index].date.split("T")[0] : new Date().toISOString().split("T")[0],
+                    date: transactions[note.index].date ? transactions[note.index].date.split("T")[0] : new Date().split("T")[0],
                     note: note.note || "",
                   });
                 }}>Edit</button>

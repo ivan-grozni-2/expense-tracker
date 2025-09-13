@@ -46,6 +46,8 @@ function Dashboard() {
 
         return await res.json();
     };
+    
+
 
     const fetchTransactions = async (newFilters = {}) => {
         setFilters(newFilters);
@@ -58,6 +60,7 @@ function Dashboard() {
                     "Authorization": `Bearer ${token}`
                 }
             });
+            
             setTransactions(data1);
 
             const data4 = await authFetch(`http://localhost:5000/transactions/total?${query}`, {

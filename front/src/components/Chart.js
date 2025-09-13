@@ -250,7 +250,7 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
                 <p> no summary</p>
             ) : (
                 <>
-                    <h3>Comparison by category</h3>
+                    <h3>Through time</h3>
                     <LineChart
                                width={1100}
                                height={300}

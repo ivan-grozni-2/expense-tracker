@@ -15,7 +15,7 @@ function Home({ allTransactions, burgerClass }) {
     let incomeListcat = [];
     let expenseListcat = [];
     let monthly = [];
-    let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
+    let months = [" ", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
     let uniquedate = new Set();
 
 
@@ -43,7 +43,7 @@ function Home({ allTransactions, burgerClass }) {
             }else{
                 uniquedate.add(element.date.slice(0,7))
                 monthly.push({...{date:element.date.slice(0,7),
-                    month:months[Number(element.date.split("-")[1] - 1)],
+                    month:months[Number(element.date.split("-")[1])],
                      income:(element.category_type === "income") ? Number(element.amount):0,
                       expense:(element.category_type === "expense") ? Number(element.amount):0}})
             }
