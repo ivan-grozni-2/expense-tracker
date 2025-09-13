@@ -1,21 +1,22 @@
 import React, { useState, useContext } from "react";
 import AuthContext from "../context/AuthContext";
 import "./table.css"
-import Filters from "../components/Filters";
+import Filters from "../Filter/Filters";
 
 function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters, total, burgerClass }) {
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "" });
+  const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "", note: "" });
   const [sorting, setSorting] = useState({ column: "", direction: 1 });
   const [arrowDirection, setArrowDirection] = useState({ id: "-", date: "-", amount: "-", category_name: "-", category_type: "-" })
   const { user, token, userid } = useContext(AuthContext);
-  const [note, setNote] = useState({})
+  const [note, setNote] = useState({ date: "", category_name: "", note: "", index: 0, id: 0 })
   const [message, setMessage] = useState("")
+  const [noteButton, setNoteButton] = useState(false);
 
   let shrink = "transaction";
 
   if (burgerClass === "hamburger active") shrink = "transaction shrink";
-  else shrink = "home"
+  else shrink = "transaction";
 
   const startEditing = (transaction) => {
     setEditingId(transaction.id);
@@ -23,12 +24,13 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
       amount: transaction.amount,
       category_id: transaction.category_id ?? (categories[0]?.id || ""),
       date: transaction.date ? transaction.date.split("T")[0] : new Date().toISOString().split("T")[0],
+      note: transaction.note || "",
     });
   };
   function color(type) {
     if (type === "income") return "#4caf5055";
     else return "#f4433655";
-}
+  }
 
   const handleSave = (id) => {
     fetch(`http://localhost:5000/transactions/${id}`, {
@@ -51,6 +53,10 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
       .catch((err) => {
         console.error("Error updating transaction:", err)
         setMessage(err);
+        if (err) {
+          setMessage("Error updating transaction please try again");
+          return;
+        }
       });
     fetchTransactions(filters);
   };
@@ -80,7 +86,6 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     arrowDirection.category_name = "-";
     arrowDirection.category_type = "-";
     arrowDirection.date = "-";
-    console.log("ARROWS ", arrowDirection)
     setArrowDirection({ ...arrowDirection, [key]: arrow[sorting.direction] });
 
     setTransactions(transactions.sort((a, b) => {
@@ -100,9 +105,6 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     }));
 
 
-    console.log("dn : ", key);
-    console.log("column : ", sorting);
-    console.log("dc : ", dc);
   };
 
   function viewNote(id) {
@@ -112,93 +114,151 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     let note = "" + transactions[id].note;
     setNote({ ...note, note: n });
     n = "DATE : " + transactions[id].date.split("T")[0];
-    setNote({ ...note, date: n, category_name: name, note: note });
+    setNote({ ...note, date: n, category_name: name, note: note, index: id, id: transactions[id].id });
   }
 
-  console.log("transactions :", transactions)
+
+  function handleExport() {
+    let query = "";
+    if (filters.startmonth || filters.category_id || filters.endmonth || filters.revenue) {
+      const params = new URLSearchParams(filters).toString();
+      query = "?" + params;
+
+    }
+
+    fetch(`http://localhost:5000/transactions/export/csv${query}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+      .then((res) => res.blob())
+      .then((blob) => {
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "transactions.csv";
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => setMessage("error exporting"));
+
+  };
 
 
-
-  return (<div className={shrink} ><Filters categories={categories} onFilter={fetchTransactions} fetchTransactions={fetchTransactions}/>
-    <div className="table">
-    {transactions.length ?
-    (<table border="1" cellPadding="5">
-      <thead>
-        <tr>
-          <th>No.</th>
-          <th onClick={() => handleSort("amount")}>Amount {arrowDirection.amount}</th>
-          <th onClick={() => handleSort("category_name")}>Category {arrowDirection.category_name}</th>
-          <th onClick={() => handleSort("date")}>Date {arrowDirection.date}</th>
-          <th onClick={() => handleSort("category_type")}>revenue type {arrowDirection.category_type}</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {transactions.map((t, i) => (
-          <tr key={t.id} onClick={() => viewNote(i)} style={{ backgroundColor: color(t.category_type) }}>
-            <td>{i + 1}</td>
-            <td>
-              {editingId === t.id ? (
-                <input
-                  type="number"
-                  value={editForm.amount}
-                  onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
-                />
-              ) : t.amount}
-            </td>
-            <td>
-              {editingId === t.id ? (
-                <select
-                  value={editForm.category_id}
-                  onChange={(e) => setEditForm({ ...editForm, category_id: Number(e.target.value) })}
-                >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-              ) : t.category_name}
-            </td>
-            <td>
-              {editingId === t.id ? (
-                <input
-                  type="date"
-                  value={editForm.date}
-                  onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
-                />
-              ) : (t.date ? t.date.split("T")[0] : "")}
-            </td>
-            <td>
-              {editingId === t.id ? (t.category_type) : (t.category_type)}
-            </td>
-            <td>
-              {editingId === t.id ? (
-                <>
-                  <button onClick={() => handleSave(t.id)}>Save</button>
-                  <button onClick={() => setEditingId(null)}>Cancel</button>
-                </>
-              ) : (
-                <>
-                  <button onClick={() => startEditing(t)}>Edit</button>
-                  <button onClick={() => handleDelete(t.id)}>Delete</button>
-                </>
+  return (<div className={shrink} >
+    <div className="transaction-tables-cards ">
+      <Filters categories={categories} onFilter={fetchTransactions} fetchTransactions={fetchTransactions} vertical={true} />
+    </div>
+    <div className="table dashboard-cards">
+      {transactions.length ?
+        (<div><table border="1" cellPadding="5">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th onClick={() => handleSort("amount")}>Amount {arrowDirection.amount}</th>
+              <th onClick={() => handleSort("category_name")}>Category {arrowDirection.category_name}</th>
+              <th onClick={() => handleSort("date")}>Date {arrowDirection.date}</th>
+              <th onClick={() => handleSort("category_type")}>revenue type {arrowDirection.category_type}</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((t, i) => (
+              <tr key={t.id} onClick={() => { setNoteButton(false); viewNote(i) }} style={{ backgroundColor: color(t.category_type) }}>
+                <td>{i + 1}</td>
+                <td>
+                  {editingId === t.id ? (
+                    <input
+                      type="number"
+                      value={editForm.amount}
+                      onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+                    />
+                  ) : t.amount}
+                </td>
+                <td>
+                  {editingId === t.id ? (
+                    <select
+                      value={editForm.category_id}
+                      onChange={(e) => setEditForm({ ...editForm, category_id: Number(e.target.value) })}
+                    >
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  ) : t.category_name}
+                </td>
+                <td>
+                  {editingId === t.id ? (
+                    <input
+                      type="date"
+                      value={editForm.date}
+                      onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                    />
+                  ) : (t.date ? t.date.split("T")[0] : "")}
+                </td>
+                <td>
+                  {editingId === t.id ? (t.category_type) : (t.category_type)}
+                </td>
+                <td style={{ display: "flex", gap: "10px" }}>
+                  {editingId === t.id ? (
+                    <>
+                      <button onClick={() => handleSave(t.id)}>Save</button>
+                      <button onClick={() => setEditingId(null)}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => startEditing(t)}>Edit</button>
+                      <button onClick={() => handleDelete(t.id)}>Delete</button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>) : (
+          <p> no transaction please add a new one</p>
+        )}
+      <div style={{ flex: "1", alignSelf: "flex-start", position: "sticky", top: "0px", margin: 10, textAlign: "center", width: "fit-content" }}>
+        <p>{message}</p>
+        <h3>Total is {total}</h3>
+        <button onClick={handleExport}>Export Spreadsheet</button>
+        {note.note === "" ? (<p> Click on a transaction to view notes</p>) : (
+          <div style={{ textAlign: "left" }}>
+            <h4>{note.date}</h4>
+            <h4>{note.category_name}</h4>{
+              noteButton ? (<input
+                style={{ width: "100%", height: "fit-content" }}
+                placeholder={(note.note === "null") ? ("Please add notes") : (note.note)}
+                value={editForm.note}
+                type="text"
+                onChange={(e) => setEditForm({ ...editForm, note: e.target.value })}
+              />) : (
+                <p>{(note.note === "null") ? ("Please add notes") : (note.note)}</p>
               )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>) : (
-      <p> no transaction please add a new one</p>
-    )}
-    <div style={{ alignSelf: "flex-start", position: "-webkit-sticky", position: "sticky", top: "-20px", margin: 10, textAlign: "center", width: "50%" }}>
-      <p>{message}</p>
-      <h3>Total is {total}</h3>
-      <div style={{ textAlign: "left" }}>
-        <h4>{note.date}</h4>
-        <h4>{note.category_name}</h4>
-        <p>{note.note}</p>
+            {
+              noteButton ? (<>
+                <button onClick={() => {
+                  setNoteButton(false);
+                  setNote({ ...note, note: editForm.note });
+                  handleSave(note.id);
+
+                }}>Save</button>
+                <button onClick={() => setNoteButton(false)}>Cancel</button></>
+              ) : (
+                <button onClick={() => {
+                  setNoteButton(true); setEditForm({
+                    amount: transactions[note.index].amount,
+                    category_id: transactions[note.index].category_id ?? (categories[0]?.id || ""),
+                    date: transactions[note.index].date ? transactions[note.index].date.split("T")[0] : new Date().toISOString().split("T")[0],
+                    note: note.note || "",
+                  });
+                }}>Edit</button>
+              )}
+
+          </div>)}
       </div>
     </div>
-  </div>
   </div>
   );
 }

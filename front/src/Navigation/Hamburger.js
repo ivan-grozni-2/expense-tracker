@@ -3,7 +3,7 @@ import "./Hamburger.css"
 
 
 function Hamburger({burgerClass, setBurgerClass, tabs, setTabs}) {
-console.log(burgerClass);
+    
     return (
         <section className={burgerClass}>
             <nav className="editors">

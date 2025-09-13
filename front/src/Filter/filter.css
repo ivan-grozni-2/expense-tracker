@@ -1,0 +1,127 @@
+
+.filters {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.filters.vertical {
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: 1;
+}
+.content.vertical {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+}
+
+.cardbox{
+    gap: 10px;
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+}
+
+.cardbox select{
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    padding: 0 5px;
+    width: 200px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    color: var(--color-income);
+}
+h3{
+    
+    font-size: 1.2rem;
+    color: var(--color-income);
+}
+h2{
+    
+    font-size: 1.5rem;
+    color: var(--color-income);
+}
+.cardbox .input {
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    color: var(--color-income);
+}
+
+.cardbox .input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+
+.cardbox .input::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+.cardbox .input:hover {
+    border-color: #0056b3;
+}
+
+.cardbox .input:focus-visible {
+    animation: pulse 1s infinite;
+}
+.filter-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
+    align-items: center;
+}
+.filter-buttons button {
+    border-radius: 3px;
+    font-size: 1rem;
+    background-color: var(--color-income);
+    color: var(--color-income-light);
+    transition: all 0.5s ease;
+    cursor: pointer;
+}
+.filter-buttons button:hover {
+    background-color: lightgreen;
+    color: white;
+    box-shadow: 0 2px 6px rgb(0, 0, 0, 0.5);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.7);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+}
+#hide{
+    font-size: 0.5rem;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 50%;
+    background-color: var(--color-income-light);
+    color: var(--color-income);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-weight: bold;
+}
+#hide:hover{
+    box-shadow: none;
+}

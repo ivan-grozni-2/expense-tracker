@@ -57,7 +57,6 @@ router.post("/login", (req, res) => {
         try {
 
             const match = await bcrypt.compare(password, result[0].password);
-            console.log("the pass :", result[0].password);
 
             let id = 0;
             if (!match) {

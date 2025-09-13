@@ -51,7 +51,6 @@ function Home({ allTransactions, burgerClass }) {
 
         }
         );
-        console.log("monthly:", monthly);
         catagoryorder();
 
         function catagoryorder() {
@@ -98,8 +97,6 @@ function Home({ allTransactions, burgerClass }) {
 
     if (total <= 0) totalcolor = "#f44336";
     else totalcolor = "#4caf50";
-    console.log(" total " + total + " color " + totalcolor)
-
 
     return (<div className={shrink}>
         <div className="row">

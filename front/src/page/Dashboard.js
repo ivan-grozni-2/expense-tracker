@@ -3,13 +3,13 @@ import TransactionForm from "../components/TransactionForm";
 import TransactionTable from "../tables/TransactionTable";
 import CategoryAdd from "../components/CategoryAdd";
 import Chart from "../components/Chart";
-import Filters from "../components/Filters";
 import AuthContext from "../context/AuthContext";
 import Navbar from "../components/navbar";
 import DashboardCards from "../components/DashboardCards";
 import Hamburger from "../Navigation/Hamburger";
 import "../styles/Dashboard.css"
 import Home from "../pages/Home";
+import Report from "../Report/Report";
 
 function Dashboard() {
     const [transactions, setTransactions] = useState([]);
@@ -47,16 +47,9 @@ function Dashboard() {
         return await res.json();
     };
 
-    const save = () => {
-
-    }
-
     const fetchTransactions = async (newFilters = {}) => {
-        const applyFilters = { ...filters, ...newFilters };
         setFilters(newFilters);
         const query = new URLSearchParams(newFilters).toString();
-
-        console.log("user is", token);
 
         try {
             const data1 = await authFetch(`http://localhost:5000/transactions?${query}`, {
@@ -66,22 +59,6 @@ function Dashboard() {
                 }
             });
             setTransactions(data1);
-
-            const data2 = await authFetch(`http://localhost:5000/transactions/summary?${query}`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-            setSummary(data2);
-
-            const data3 = await authFetch(`http://localhost:5000/transactions/summary/monthly?${query}`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-            setMonth(data3);
 
             const data4 = await authFetch(`http://localhost:5000/transactions/total?${query}`, {
                 headers: {
@@ -121,44 +98,54 @@ function Dashboard() {
         }
     };
 
+    const fetchMonthly = async (newFilters = {}) => {
+        setFilters(newFilters);
+        const query = new URLSearchParams(newFilters).toString();
+        try {   
+            const data = await authFetch(`http://localhost:5000/transactions/summary/monthly?${query}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        data.forEach(element => {
+            element.total = Number(element.total);
+        });
+        setMonth(data);
+    } catch (err) {
+            console.error("Error fetching:", err);
+        }
+    };
+    
+    const fetchSummary = async (newFilters = {}) => {
+        setFilters(newFilters);
+        const query = new URLSearchParams(newFilters).toString();
+        try {   
+            const data = await authFetch(`http://localhost:5000/transactions/summary?${query}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        data.forEach(element => {
+            element.total = Number(element.total);
+        });
+        setSummary(data);
+    } catch (err) {
+            console.error("Error fetching:", err);
+        }
+    };
 
     useEffect(() => {
         fetchTransactions();
+        fetchMonthly();
+        fetchSummary();
         fetch("http://localhost:5000/categories")
             .then((res) => res.json())
             .then((data) => setCategories(data))
             .catch((err) => console.error("Error fetching categories:", err));
     }, []);
 
-
-
-    function handleExport() {
-        let query = "";
-        if (filters.startmonth || filters.category_id || filters.endmonth || filters.revenue) {
-            const params = new URLSearchParams(filters).toString();
-            query = "?" + params;
-
-        }
-
-        fetch(`http://localhost:5000/transactions/export/csv${query}`, {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        })
-            .then((res) => res.blob())
-            .then((blob) => {
-
-                console.log("the filters ", blob);
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "transactions.csv";
-                a.click();
-                window.URL.revokeObjectURL(url);
-            })
-            .catch((error) => setExportMessage("error exporting"));
-
-    };
 
     /*return (
         <div style={{ marginLeft: "5rem" }}>
@@ -226,7 +213,15 @@ function Dashboard() {
                 {tabs === 0 ? (<>
                     <Home allTransactions={allTransactions} burgerClass={burgerClass} />
                 </>) : tabs === 1 ? (<>
-
+                    <Report
+                        burgerClass={burgerClass}
+                        fetchMonthly={fetchMonthly}
+                        monthly={month}
+                        fetchSummary={fetchSummary}
+                        summary={summary}
+                        filters={filters}
+                        fetchTransactions={fetchTransactions}
+                        categories={categories}/>
                 </>) : tabs === 2 ? (<>
                     <TransactionTable
                         transactions={transactions}
@@ -238,7 +233,9 @@ function Dashboard() {
                         burgerClass={burgerClass}
                     />
                 </>) : (
-                    <></>
+                    <>
+                    
+                    </>
                 )}
             </>
         </>

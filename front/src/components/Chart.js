@@ -17,20 +17,21 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
             })
             .catch((err) => console.error("Error fetching summary:", err));
     }, []);
-*/try{
-    if (data.error) {
-        return (<>
-            {data.error && <h3 style={{ color: "red" }}> {data.error} </h3>};
-        </>);
-    }
-    if (data.length !== 0) {
-        data = data.map((d) => ({ ...d, total: d.total.toFixed(2) }));
-        data = data.map((d) => ({ ...d, total: Number(d.total) }));
+*/try {
+        if (data.error) {
+            return (<>
+                {data.error && <h3 style={{ color: "red" }}> {data.error} </h3>};
+            </>);
+        }
+        if (data.length !== 0) {
+            data = data.map((d) => ({ ...d, total: d.total.toFixed(2) }));
+            data = data.map((d) => ({ ...d, total: Number(d.total) }));
 
-        data.map((e) => {
+            data.map((e) => {
 
-        })
-    }}catch(err){
+            })
+        }
+    } catch (err) {
 
     }
 
@@ -105,43 +106,43 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
             return "rgb(244, 67, 54)"
         }
     }
-    console.log(selectColor());
-    if(data.length === 0){
-        return(
-        <p> Please add a transaction to view its report here</p>
-        
-    )
+
+    if (data.length === 0) {
+        return (
+            <p> Please add a transaction to view its report here</p>
+
+        )
     }
     if (type === "pie") {
         return (<>
             <h3 style={{ color: selectColor() }}>Total: ${total()}</h3>
-            
-                    <PieChart width={400} height={300}>
-                        <Pie
-                            data={data}
-                            dataKey="total"
-                            nameKey="category"
-                            cx="50%"
-                            cy="50%"
-                            fill="#8884d8"
-                            outerRadius={100}
-                            innerRadius={70}
-                            label
-                        >
-                            {data.map((entry, index, array) => (
-                                <Cell key={`cell-${index}`} fill={gradientcolor(array, entry.total, "neutral")} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend layout="vertical"
-                            verticalAlign="middle"
-                            align="right"
-                            wrapperStyle={{
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                            }} />
-                        <XAxis dataKey="category" />
-                    </PieChart>
+
+            <PieChart width={450} height={300}>
+                <Pie
+                    data={data}
+                    dataKey="total"
+                    nameKey="category"
+                    cx="50%"
+                    cy="50%"
+                    fill="#8884d8"
+                    outerRadius={100}
+                    innerRadius={70}
+                    label
+                >
+                    {data.map((entry, index, array) => (
+                        <Cell key={`cell-${index}`} fill={gradientcolor(array, entry.total, "neutral")} />
+                    ))}
+                </Pie>
+                <Tooltip />
+                <Legend layout="vertical"
+                    verticalAlign="middle"
+                    align="right"
+                    wrapperStyle={{
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                    }} />
+                <XAxis dataKey="category" />
+            </PieChart>
         </>)
     } else if (type === "Bar") {
         return (<>
@@ -155,15 +156,120 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Legend/>
+                <Legend />
                 <Bar dataKey="income" fill="rgb(76, 175, 80)" />
                 <Bar dataKey="expense" fill="rgb(244, 67, 54)" />
 
             </BarChart>
         </>)
-    } else {
-        return (<></>)
+    } else if (type === "piein") {
+        return (<>
+            {data.length === 0 ? (
+                <p> no summary</p>
+            ) : (
+                <div>
+                    <h3>Incomes</h3>
+                    <PieChart width={400} height={400}>
+                        <Pie
+                            data={datarev("income")}
+                            dataKey="total"
+                            nameKey="category"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={120}
+                            fill="#8884d8"
+                            label
+                        >
+                            {datarev("income").map((entry, index, array) => (
+                                <Cell key={`cell-${index}`} fill={gradientcolor(array, entry.total, "income")} />
+                            ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                        <XAxis dataKey="Category" />
+                        <Bar dataKey="Legend" fill="#82ca9d" />
+                    </PieChart>
+                </div>
+            )}
+        </>)
     }
+    else if (type === "pieout") {
+        return (<>
+            {data.length === 0 ? (
+                <p> no summary</p>
+            ) : (
+                <>
+                    <h3>Expenses</h3>
+                    <PieChart width={400} height={400}>
+                        <Pie
+                            data={datarev("expense")}
+                            dataKey="total"
+                            nameKey="category"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={120}
+                            fill="#8884d8"
+                            label
+                        >
+                            {datarev("expense").map((entry, index, array) => (
+                                <Cell key={`cell-${index}`} fill={gradientcolor(array, entry.total, "expense")} />
+                            ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                        <XAxis dataKey="Category" />
+                    </PieChart>
+
+                </>)}
+        </>)
+    } else if (type === "1bar") {
+        return (<>
+            {data.length === 0 ? (
+                <p> no summary</p>
+            ) : (
+                <>
+                    <h3>Comparison by Category</h3>
+                    <BarChart
+                        width={500}
+                        height={500}
+                        data={data}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="category" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="total" fill="#82ca9d" />
+
+                    </BarChart>
+                </>)}
+        </>)
+    } else if (type === "line") {
+        return (<>
+            {data.length === 0 ? (
+                <p> no summary</p>
+            ) : (
+                <>
+                    <h3>Comparison by category</h3>
+                    <LineChart
+                               width={1100}
+                               height={300}
+                               data={data}
+                               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                           >
+                               <CartesianGrid strokeDasharray={"3 3"} />
+                               <XAxis dataKey="day" />
+                               <YAxis />
+                               <Tooltip />
+                               <Legend />
+                               <ReferenceLine y={0} stroke="black" label="Threshold" />
+                               <Line dataKey="total" stroke="#8884d8" />
+
+                           </LineChart>
+                </>)}
+        </>)
+    }
+
 
 
     /*   return (

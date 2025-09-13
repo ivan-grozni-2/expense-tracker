@@ -151,7 +151,7 @@ router.get("/total", authMiddleware, (req, res) => {
 
 router.get("/summary", authMiddleware, (req, res) => {
   let sql = `
-    SELECT c.name AS category, c.type AS category_type, SUM(if(c.type = 'income', t.amount, -t.amount)) + 0 AS total
+    SELECT c.name AS category, c.type AS category_type, CONVERT(SUM(if(c.type = 'income', t.amount, -t.amount)), DECIMAL(5,2)) AS total
     FROM transactions t
     LEFT JOIN categories c ON t.category_id = c.id
     WHERE t.user_id = ? 
@@ -238,12 +238,12 @@ router.get("/:id", authMiddleware, (req, res) => {
 });
 
 router.post("/", authMiddleware, (req, res) => {
-  const { amount, category_id, date } = req.body;
+  const { amount, category_id, date, note } = req.body;
   const user = req.user.id;
 
   db.query(
-    "INSERT INTO transactions (user_id, amount, category_id, date) VALUES (?, ?, ?, ?)",
-    [user, amount, category_id || null, date],
+    "INSERT INTO transactions (date, amount, category_id, note, user_id ) VALUES (?, ?, ?, ?, ?)",
+    [date, amount, category_id || null, note, user],
     (err, result) => {
       if (err) {
         console.error("Error creating transaction:", err);
@@ -262,12 +262,12 @@ router.post("/", authMiddleware, (req, res) => {
 
 router.put("/:id", authMiddleware, (req, res) => {
   const { id } = req.params;
-  const { amount, category_id, date } = req.body;
+  const { amount, category_id, date, note } = req.body;
   const user = req.user.id;
 
   db.query(
-    "UPDATE transactions SET amount = ?, category_id = ?, date = ? WHERE id = ? AND user_id = ?",
-    [amount, category_id || null, date, id, user],
+    "UPDATE transactions SET amount = ?, category_id = ?, date = ?, note = ? WHERE id = ? AND user_id = ?",
+    [amount, category_id || null, date, note, id, user],
     (err, result) => {
       if (err) {
         console.error("Error updating transaction:", err);
