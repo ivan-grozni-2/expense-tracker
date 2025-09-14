@@ -46,7 +46,7 @@ function Dashboard() {
 
         return await res.json();
     };
-    
+
 
 
     const fetchTransactions = async (newFilters = {}) => {
@@ -60,7 +60,7 @@ function Dashboard() {
                     "Authorization": `Bearer ${token}`
                 }
             });
-            
+
             setTransactions(data1);
 
             const data4 = await authFetch(`http://localhost:5000/transactions/total?${query}`, {
@@ -104,37 +104,37 @@ function Dashboard() {
     const fetchMonthly = async (newFilters = {}) => {
         setFilters(newFilters);
         const query = new URLSearchParams(newFilters).toString();
-        try {   
+        try {
             const data = await authFetch(`http://localhost:5000/transactions/summary/monthly?${query}`, {
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-        data.forEach(element => {
-            element.total = Number(element.total);
-        });
-        setMonth(data);
-    } catch (err) {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            data.forEach(element => {
+                element.total = Number(element.total);
+            });
+            setMonth(data);
+        } catch (err) {
             console.error("Error fetching:", err);
         }
     };
-    
+
     const fetchSummary = async (newFilters = {}) => {
         setFilters(newFilters);
         const query = new URLSearchParams(newFilters).toString();
-        try {   
+        try {
             const data = await authFetch(`http://localhost:5000/transactions/summary?${query}`, {
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-        data.forEach(element => {
-            element.total = Number(element.total);
-        });
-        setSummary(data);
-    } catch (err) {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            data.forEach(element => {
+                element.total = Number(element.total);
+            });
+            setSummary(data);
+        } catch (err) {
             console.error("Error fetching:", err);
         }
     };
@@ -197,6 +197,9 @@ function Dashboard() {
             />
         </div>
     );*/
+
+    console.log("tab is ", tabs);
+
     return (
         <>
             <Hamburger
@@ -224,7 +227,7 @@ function Dashboard() {
                         summary={summary}
                         filters={filters}
                         fetchTransactions={fetchTransactions}
-                        categories={categories}/>
+                        categories={categories} />
                 </>) : tabs === 2 ? (<>
                     <TransactionTable
                         transactions={transactions}
@@ -235,11 +238,18 @@ function Dashboard() {
                         total={total}
                         burgerClass={burgerClass}
                     />
-                </>) : (
+                </>) : tabs === 3 ?(
                     <>
-                    
+                        <TransactionForm
+                            transactions={transactions}
+                            setCategories={setCategories}
+                            categories={categories}
+                            fetchTransactions={fetchTransactions}
+                            filters={filters}
+                        />
+                        
                     </>
-                )}
+                ):(<></>)}
             </>
         </>
 

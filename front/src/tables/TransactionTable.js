@@ -190,7 +190,10 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
                 <td>
                   {editingId === t.id ? (
                     <input
-                      type="date"
+                    className="input"
+                    type="text"
+                    onFocus={(e) => e.target.type = 'month'}
+                    onBlur={(e) => e.target.type = 'text'}
                       value={editForm.date}
                       onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
                     />

@@ -35,7 +35,9 @@ function Filters({ categories, onFilter, fetchTransactions, vertical }) {
                     <div className="cardbox">
                         <input
                             className="input"
-                            type="month"
+                            type="text"
+                            onFocus={(e) => e.target.type = 'month'}
+                            onBlur={(e) => e.target.type = 'text'}
                             value={startmonth}
                             placeholder="Start Month"
                             name="Start Month"
@@ -43,7 +45,9 @@ function Filters({ categories, onFilter, fetchTransactions, vertical }) {
                         />
                         <input
                             className="input"
-                            type="month"
+                            type="text"
+                            onFocus={(e) => e.target.type = 'month'}
+                            onBlur={(e) => e.target.type = 'text'}
                             value={endmonth}
                             placeholder="End Month"
                             onChange={(e) => setEndMonth(e.target.value)}
