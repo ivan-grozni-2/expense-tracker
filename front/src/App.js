@@ -1,7 +1,4 @@
 import React, { useEffect, useState, useContext } from "react";
-import TransactionForm from "./components/TransactionForm";
-import TransactionTable from "./tables/TransactionTable";
-import Chart from "./components/Chart";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import AuthContext from "./context/AuthContext";
 import Login from "./Auth/Login";

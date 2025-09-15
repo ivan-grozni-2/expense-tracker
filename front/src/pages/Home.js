@@ -4,7 +4,7 @@ import Chart from "../components/Chart";
 import Table from "../tables/table";
 import { data } from "react-router-dom";
 
-function Home({ allTransactions, burgerClass }) {
+function Home({ allTransactions, burgerClass, setTab }) {
     let shrink = "home";
     let totalcolor = "";
     let income = 0;
@@ -98,7 +98,16 @@ function Home({ allTransactions, burgerClass }) {
     if (total <= 0) totalcolor = "#f44336";
     else totalcolor = "#4caf50";
 
+    
+
     return (<div className={shrink}>
+       {(allTransactions.length === 0)?
+        (<div style={{display:"flex", justifyContent:"space-around", flexDirection:"column",alignItems:"center"}}>
+        <h4> If you want to view reports and transaction you need to add a transaction here</h4>
+        <button type="click" onClick={() => setTab(3) } style={{maxWidth:"15rem"}}>Add transaction</button>
+        </div>):(
+    
+        <>
         <div className="row">
             <div className="dashboard-cards left">
                 <button id="addtransactiononcards" type="click"> Add Transaction</button>
@@ -179,8 +188,8 @@ function Home({ allTransactions, burgerClass }) {
             <Table data={allTransactions} />
 
         </div>
-        </div>
-
+        </div></>
+)}
     </div>
     )
 }

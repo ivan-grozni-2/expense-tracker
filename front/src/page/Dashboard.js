@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import TransactionForm from "../components/TransactionForm";
+import TransactionForm from "../form/TransactionForm";
 import TransactionTable from "../tables/TransactionTable";
 import CategoryAdd from "../components/CategoryAdd";
 import Chart from "../components/Chart";
@@ -28,6 +28,7 @@ function Dashboard() {
     const [allTransactions, setAllTransaction] = useState([])
     const [tabs, setTabs] = useState(0);
 
+    const API_URL = process.env.REACT_APP_API_URL;
 
 
     const authFetch = async (url, options = {}) => {
@@ -54,7 +55,7 @@ function Dashboard() {
         const query = new URLSearchParams(newFilters).toString();
 
         try {
-            const data1 = await authFetch(`http://localhost:5000/transactions?${query}`, {
+            const data1 = await authFetch(`${API_URL}/transactions?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
@@ -63,7 +64,7 @@ function Dashboard() {
 
             setTransactions(data1);
 
-            const data4 = await authFetch(`http://localhost:5000/transactions/total?${query}`, {
+            const data4 = await authFetch(`${API_URL}/transactions/total?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
@@ -71,7 +72,7 @@ function Dashboard() {
             });
 
             setTotal(data4.total);
-            const data5 = await authFetch(`http://localhost:5000/categories?${query}`, {
+            const data5 = await authFetch(`${API_URL}/categories?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
@@ -79,7 +80,7 @@ function Dashboard() {
             });
             setCategories(data5);
 
-            const data6 = await authFetch(`http://localhost:5000/transactions/user`, {
+            const data6 = await authFetch(`${API_URL}/transactions/user`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
@@ -87,7 +88,7 @@ function Dashboard() {
             });
             setUsername(data6)
 
-            const data7 = await authFetch(`http://localhost:5000/transactions/all`, {
+            const data7 = await authFetch(`${API_URL}/transactions/all`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
@@ -105,7 +106,7 @@ function Dashboard() {
         setFilters(newFilters);
         const query = new URLSearchParams(newFilters).toString();
         try {
-            const data = await authFetch(`http://localhost:5000/transactions/summary/monthly?${query}`, {
+            const data = await authFetch(`${API_URL}/transactions/summary/monthly?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
@@ -124,7 +125,7 @@ function Dashboard() {
         setFilters(newFilters);
         const query = new URLSearchParams(newFilters).toString();
         try {
-            const data = await authFetch(`http://localhost:5000/transactions/summary?${query}`, {
+            const data = await authFetch(`${API_URL}/transactions/summary?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
@@ -143,62 +144,12 @@ function Dashboard() {
         fetchTransactions();
         fetchMonthly();
         fetchSummary();
-        fetch("http://localhost:5000/categories")
+        fetch("${API_URL}/categories")
             .then((res) => res.json())
             .then((data) => setCategories(data))
             .catch((err) => console.error("Error fetching categories:", err));
     }, []);
 
-
-    /*return (
-        <div style={{ marginLeft: "5rem" }}>
-            <h1> Expense Tracker</h1>
-            <Navbar logout={logout}/>
-            <DashboardCards transactions={transactions}/>
-            <Filters categories={categories} onFilter={fetchTransactions} fetchTransactions={fetchTransactions} />
-            <CategoryAdd
-                setCategories={setCategories}
-                fetchTransactions={fetchTransactions}
-                filters={filters}
-            />
-            <TransactionForm
-                transactions={transactions}
-                setTransactions={setTransactions}
-                categories={categories}
-                fetchTransactions={fetchTransactions}
-                filters={filters}
-            />
-            <button onClick={() => handleExport()}> Export </button>
-            <TransactionTable
-                transactions={transactions}
-                setTransactions={setTransactions}
-                categories={categories}
-                fetchTransactions={fetchTransactions}
-                filters={filters}
-                total={total}
-            />
-            <Chart data={summary}
-                total={total}
-                type="pie"
-                title="Expenses by Category"
-                income={income}
-                setIncome={setIncome}
-                expense={expense}
-                setExpense={setExpense}
-            />
-            <Chart data={month}
-                total={total}
-                type="line"
-                title="Monthly Expenses"
-                income={income}
-                setIncome={setIncome}
-                expense={expense}
-                setExpense={setExpense}
-            />
-        </div>
-    );*/
-
-    console.log("tab is ", tabs);
 
     return (
         <>
@@ -217,7 +168,7 @@ function Dashboard() {
             />
             <>
                 {tabs === 0 ? (<>
-                    <Home allTransactions={allTransactions} burgerClass={burgerClass} />
+                    <Home allTransactions={allTransactions} burgerClass={burgerClass} setTab={setTabs} />
                 </>) : tabs === 1 ? (<>
                     <Report
                         burgerClass={burgerClass}
@@ -227,7 +178,9 @@ function Dashboard() {
                         summary={summary}
                         filters={filters}
                         fetchTransactions={fetchTransactions}
-                        categories={categories} />
+                        categories={categories} 
+                        setTab={setTabs}
+                        />
                 </>) : tabs === 2 ? (<>
                     <TransactionTable
                         transactions={transactions}
@@ -237,6 +190,7 @@ function Dashboard() {
                         filters={filters}
                         total={total}
                         burgerClass={burgerClass}
+                        setTab={setTabs}
                     />
                 </>) : tabs === 3 ?(
                     <>
@@ -246,6 +200,9 @@ function Dashboard() {
                             categories={categories}
                             fetchTransactions={fetchTransactions}
                             filters={filters}
+                            burgerClass={burgerClass}
+                            fetchSummary={fetchSummary}
+                            fetchmonthly={fetchMonthly}
                         />
                         
                     </>

@@ -1,61 +1,63 @@
-import React, {useState, useContext} from "react";
+import React, { useState, useContext } from "react";
 import AuthContext from "../context/AuthContext";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import "./auth.css"
 
 
-function Login(){
-    const {login} = useContext(AuthContext);
+function Login() {
+    const { login } = useContext(AuthContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+ 
+        localStorage.clear();
 
-        console.log("user :",username)
-
-        try{
+        try {
+            setError(null)
             const response = await login(username, password);
-            const data = await response.json();
-            console.log("username ", localStorage.getItem("user"));
 
-            if(data.error){
-                console.log("error ", data.error);
-                return;
+            if (!response.error) {
+                navigate("/Dashboard");
+            } else {
+                setError(response.error|| "registration failed");
             }
-
-            navigate("/Dashboard");
-
-
-        }catch (err) {
-            setError("server error" , err);
-
+        } catch (err) {
+            setError("serverERR");
         }
     };
 
 
-    return(
-        <div>
-            <h2> Login </h2>
-            <form onSubmit={handleSubmit}>
-                <input
-                type = "text"
-                placeholder = "username"
-                value = {username}
-                onChange={(e) => setUsername(e.target.value)}
-                />
-                <input
-                type = "password"
-                placeholder = "password"
-                value = {password}
-                onChange={(e) => setPassword(e.target.value)}
-                />
-                <button type="Submit"> login </button>
-            </form>
-            
-            <button type = "register" onClick={() => {navigate("/register")}}> Create a new account</button>
-            {error && <p style={{color: "red"}}>{error}</p> }
+    return (
+        <div className="body">
+            <div className="dashboard-cards frontline">
+                <h1> Login </h1>
+                <form onSubmit={handleSubmit}>
+                    <input
+                        className="input"
+                        type="text"
+                        placeholder="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
+                    <input
+                        className="input"
+                        type="password"
+                        placeholder="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <button type="Submit"> login </button>
+                </form>
+
+                <a id="register" href="/register" type="register"> Create a new account</a>
+                {error && <p style={{ color: "red" }}>{error}</p>}
+            </div>
         </div>
     );
 

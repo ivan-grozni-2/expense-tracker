@@ -31,7 +31,7 @@ function Filters({ categories, onFilter, fetchTransactions, vertical }) {
             {!hide ?(<>
             <div className={vertical ? "filters" : "filters vertical"}>
                 <div className={vertical ? "content" : "content vertical"}>
-                    <h3>Time Period</h3>
+                    <h4>Time Period</h4>
                     <div className="cardbox">
                         <input
                             className="input"
@@ -55,8 +55,7 @@ function Filters({ categories, onFilter, fetchTransactions, vertical }) {
                     </div>
                 </div>
                 <div className={vertical ? "content" : "content vertical"}>
-                    <h3>Category</h3>
-                    <div className="cardbox">
+                    <h4>Category</h4>
                         <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
                             <option value="">All</option>
                             {(categories)?(categories.map((c) => (
@@ -64,17 +63,16 @@ function Filters({ categories, onFilter, fetchTransactions, vertical }) {
                             ))):(<></>)}
                         </select>
 
-                    </div>
                 </div>
 
                 <div className={vertical ? "content" : "content vertical"}>
-                    <h3>Revenue type</h3>
+                    <h4>Revenue type</h4>
                     <div className="cardbox submit">
                         <input className="input" type="radio" name="revenue" value="income" checked={revenue == "income"} onChange={(e) => setRevenue("income")} />
                         <label >income</label><br />
                         <input className="input" type="radio" name="revenue" value="expense" checked={revenue == "expense"} onChange={(e) => setRevenue("expense")} />
                         <label >expense</label><br />
-                        <input className="input" type="radio" name="revenue" value="income" checked={revenue == ""} onChange={(e) => setRevenue("")} />
+                        <input className="input" type="radio" name="revenue" value="" checked={revenue == ""} onChange={(e) => setRevenue("")} />
                         <label >all</label><br /><br />
                     </div>
                 </div>

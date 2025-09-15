@@ -6,14 +6,16 @@ function CategoryAdd({ setCategories, fetchTransactions, filter }) {
     const [type, setType] = useState("");
     const [message, setMessage] = useState("");
     const { token } = useContext(AuthContext)
+    const API_URL = process.env.REACT_APP_API_URL;
+
+
 
 
     function handleAdd(e) {
         e.preventDefault();
 
-        console.log("name " + name + " type " + type)
         if (name && type) {
-            fetch(`http://localhost:5000/categories`, {
+            fetch(`${API_URL}/categories`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

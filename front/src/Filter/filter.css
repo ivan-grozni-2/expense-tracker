@@ -27,7 +27,7 @@
 
 .cardbox{
     gap: 10px;
-    height: 60px;
+    height: fit-content;
     display: flex;
     flex-direction: row;
 }
@@ -35,7 +35,6 @@
 .cardbox select{
     border: 2px solid #ccc;
     border-radius: 5px;
-    font-size: 1rem;
     padding: 0 5px;
     width: 200px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -46,35 +45,37 @@ h3{
     font-size: 1.2rem;
     color: var(--color-income);
 }
-h2{
-    
+.filter-container h2{
+    justify-self:left;
+    align-self: left;
     font-size: 1.5rem;
+}
+h2{
     color: var(--color-income);
 }
-.cardbox .input {
+.input {
     border: 2px solid #ccc;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 0.8rem;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     color: var(--color-income);
 }
-
-.cardbox .input:focus {
+.input:focus {
+    border: none;
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
     outline: none;
 }
-
-.cardbox .input::placeholder {
+.input::placeholder {
     color: #aaa;
     font-style: italic;
 }
 
-.cardbox .input:hover {
+.input:hover {
     border-color: #0056b3;
 }
 
-.cardbox .input:focus-visible {
+.input:focus-visible {
     animation: pulse 1s infinite;
 }
 .filter-buttons {
@@ -124,4 +125,8 @@ h2{
 }
 #hide:hover{
     box-shadow: none;
+}
+.submit input{
+max-width: fit-content;
+min-width: fit-content;
 }

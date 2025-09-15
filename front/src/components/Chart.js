@@ -1,23 +1,10 @@
 //import React, { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, ReferenceLine } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, ReferenceLine, ResponsiveContainer } from "recharts";
 
 const greens = ["#D1FAE5", "#A7F3D0", "#34D399", "#059669", "#065F46"]
 const reds = ["#FEE2E2", "#FCA5A5", "#F87171", "#DC2626", "#7F1D1D"]
 function Chart({ data, type, title, income, setincome, expense, setexpense }) {
-    /*const [summary, setSummary] = useState([]);
-
-    useEffect(() => {
-        fetch("http://localhost:5000/transactions/summary")
-            .then((res) => res.json())
-            .then((data) => {
-                console.log("summary :", data);
-                const parsed = data.map((d) => ({...d, total: Number(d.total)}));
-
-                setSummary(parsed);
-            })
-            .catch((err) => console.error("Error fetching summary:", err));
-    }, []);
-*/try {
+   try {
         if (data.error) {
             return (<>
                 {data.error && <h3 style={{ color: "red" }}> {data.error} </h3>};
@@ -89,9 +76,6 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
             else if (avg <= middle) {
                 return "rgb(" + (((33 - (76)) * ((avg - middle) / (1 - middle))) + 76) + "," + (((150 - 175) * ((avg - middle) / (1 - middle))) + 175) + "," + (((243 - 80) * ((avg - middle) / (1 - middle))) + 80) + ")"
             }
-            //--color-neutral : rgb(33, 150, 243);
-            //--color-income : rgb(76, 175, 80);
-            //--color-expense : rgb(244, 67, 54);
         }
 
         return "rgb(" + (((170 - 255) * avg) + 255) + "," + (((30 - 225) * avg) + 225) + "," + (((30 - 225) * avg) + 225) + ")";
@@ -252,20 +236,20 @@ function Chart({ data, type, title, income, setincome, expense, setexpense }) {
                 <>
                     <h3>Through time</h3>
                     <LineChart
-                               width={1100}
-                               height={300}
-                               data={data}
-                               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                           >
-                               <CartesianGrid strokeDasharray={"3 3"} />
-                               <XAxis dataKey="day" />
-                               <YAxis />
-                               <Tooltip />
-                               <Legend />
-                               <ReferenceLine y={0} stroke="black" label="Threshold" />
-                               <Line dataKey="total" stroke="#8884d8" />
+                        data={data}
+                        width={(data.length + 1) * ((350/data.length) + 50)}
+                        height={300}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                        <CartesianGrid strokeDasharray={"3 3"} />
+                        <XAxis dataKey="day" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <ReferenceLine y={0} stroke="black" label="Threshold" />
+                        <Line dataKey="total" stroke="#8884d8" />
 
-                           </LineChart>
+                    </LineChart>
                 </>)}
         </>)
     }

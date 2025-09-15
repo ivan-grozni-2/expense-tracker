@@ -5,7 +5,11 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
-    const [userid, setUserid] = useState(0)
+    const [userid, setUserid] = useState(0);
+    
+    const API_URL = process.env.REACT_APP_API_URL;
+
+
 
     useEffect(() => {
         const savedUser = localStorage.getItem("user");
@@ -25,27 +29,14 @@ export function AuthProvider({ children }) {
     }, []);
 
     const login = async (username, password) => {
-        const res = await fetch("http://localhost:5000/auth/login", {
+        const res = await fetch(`${API_URL}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),
         });
         const data = await res.json();
 
-        console.log("saved user", data);
 
-        /*fetch("http://localhost:5000/auth/login", {
-            method: "POST",
-            header: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
-        })
-            .then((res) => res.json())
-            .then((data) => {setTokens(data);
-                console.log("data is : ", data);
-            })
-            .catch((err) => console.error("Error fetching login:", err));
-
-        console.log("saved user", tokens); */
         if (res.ok) {
             setUser(username);
             setToken(data.token);
@@ -54,7 +45,7 @@ export function AuthProvider({ children }) {
             localStorage.setItem("token", data.token);
             localStorage.setItem("userid", data.id);
         }else{
-            return (data.error || {error:"cannto login"});
+            return (data);
         }
     };
 

@@ -3,7 +3,7 @@ import AuthContext from "../context/AuthContext";
 import "./table.css"
 import Filters from "../Filter/Filters";
 
-function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters, total, burgerClass }) {
+function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters, total, burgerClass, setTab }) {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "", note: "" });
   const [sorting, setSorting] = useState({ column: "", direction: 1 });
@@ -149,6 +149,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
     <div className="transaction-tables-cards ">
       <Filters categories={categories} onFilter={fetchTransactions} fetchTransactions={fetchTransactions} vertical={true} />
     </div>
+    <h2>Transaction table</h2>
     <div className="table dashboard-cards">
       {transactions.length ?
         (<div><table border="1" cellPadding="5">
@@ -190,10 +191,10 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
                 <td>
                   {editingId === t.id ? (
                     <input
-                    className="input"
-                    type="text"
-                    onFocus={(e) => e.target.type = 'month'}
-                    onBlur={(e) => e.target.type = 'text'}
+                      className="input"
+                      type="text"
+                      onFocus={(e) => e.target.type = 'month'}
+                      onBlur={(e) => e.target.type = 'text'}
                       value={editForm.date}
                       onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
                     />
@@ -219,9 +220,10 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
             ))}
           </tbody>
         </table></div>) : (
-          <p> no transaction please add a new one</p>
+          <p> no transaction please add a new one
+            <button type="click" onClick={() => setTab(3)} style={{ maxWidth: "15rem" }}>Add transaction</button></p>
         )}
-      <div style={{ flex: "1", alignSelf: "flex-start", position: "sticky", top: "0px", margin: 10, textAlign: "center", width: "fit-content" }}>
+      <div style={{ flex: "1", alignSelf: "flex-start", position: "sticky", top: "20px", margin: 10, textAlign: "center", width: "fit-content" }}>
         <p>{message}</p>
         <h3>Total is {total}</h3>
         <button onClick={handleExport}>Export Spreadsheet</button>
@@ -229,21 +231,20 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
           <div style={{ textAlign: "left" }}>
             <h4>{note.date}</h4>
             <h4>{note.category_name}</h4>{
-              noteButton ? (<input
-                style={{ width: "100%", height: "fit-content" }}
+              noteButton ? (<textarea
+                className="input"
+                style={{ width: "95%", minHeight: "4rem", height: "fit-content", resize: "none" }}
                 placeholder={(note.note === "null") ? ("Please add notes") : (note.note)}
                 value={editForm.note}
                 type="text"
                 onChange={(e) => setEditForm({ ...editForm, note: e.target.value })}
               />) : (
-                <p>{(note.note === "null") ? ("Please add notes") : (note.note)}</p>
+                <p style={{ padding: "30px" }}>{(note.note === "null") ? ("Please add notes") : (note.note)}</p>
               )}
             {
               noteButton ? (<>
                 <button onClick={() => {
                   setNoteButton(false);
-                  //console.log("the date is ", transactions[note.index].date ? transactions[note.index].date.split("T")[0] : new Date().split("T")[0]);
-                  //console.log("the date is ", transactions[note.index].date);
                   setNote({ ...note, note: editForm.note });
                   handleSave(note.id);
 
@@ -251,7 +252,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
                 <button onClick={() => setNoteButton(false)}>Cancel</button></>
               ) : (
                 <button onClick={() => {
-                  setNoteButton(true); 
+                  setNoteButton(true);
                   setEditingId(null);
                   setEditForm({
                     amount: transactions[note.index].amount,

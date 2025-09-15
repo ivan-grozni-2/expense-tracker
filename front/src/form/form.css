@@ -1,0 +1,87 @@
+.edit {
+    transform: translate(0, 70px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    margin: 0;
+    transition: all ease 0.5s;
+}
+.page {
+    transform: translate(0, 70px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    margin: 0;
+    transition: all ease 0.5s;
+    max-width: 600px;
+    min-height: 200px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #4caf5033;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    font-family: Arial, sans-serif;
+}
+#note{
+    min-width: 90%;
+    min-height: 5rem;
+    resize: none;
+}
+
+.edit.shrink {
+    max-width: calc(100% - 165px);
+    width: calc(100%-165px);
+    transform: translate(155px, 70px);
+
+}
+
+.form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.page .input {
+    flex: 1;
+    min-width: 135px;
+    padding: 10px 12px;
+    border: 1px solid #4caf5033;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.page .input:focus {
+    border-color: #4caf50;
+    box-shadow: 0 0 0 2px #4caf5033;
+}
+
+form button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #4caf50;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    justify-self: center;
+    align-self: center;
+    
+}
+
+form button:hover {
+    background-color: #43a047;
+}
+
+form button[type="submit"] {
+    flex: 0 0 auto;
+}

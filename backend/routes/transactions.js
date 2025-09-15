@@ -49,7 +49,6 @@ router.get("/export/csv", authMiddleware, (req, res) => {
 
 router.get("/user", authMiddleware, (req,res) => {
 
-console.log(req.user);
   const user = req.user.username;
   res.json(user);
 });
