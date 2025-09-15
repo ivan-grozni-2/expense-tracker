@@ -40,7 +40,7 @@ router.post("/register", (req, res) => {
 
 router.post("/login", (req, res) => {
     const { username, password } = req.body;
-    
+    console.log("heyyyyyyyyyyyy")
 
     db.query("SELECT * FROM users WHERE name = ?", [username], async (err, result) => {
         if (err) {
