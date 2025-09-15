@@ -40,12 +40,10 @@ router.post("/register", (req, res) => {
 
 router.post("/login", (req, res) => {
     const { username, password } = req.body;
-    
+    console.log("heyyyyyyyyyyyy");
 
-    //const [user] = await db.execute("SELECT * FROM users WHERE name = ?", [username]);
     db.query("SELECT * FROM users WHERE name = ?", [username], async (err, result) => {
         if (err) {
-            console.error("Error in the server:", err);
             return res.status(500).json({ error: "Cannot connect to database" });
         }
 

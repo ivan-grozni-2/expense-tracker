@@ -1,66 +1,81 @@
-import React, {useState, useContext} from "react"; 
+import React, { useState, useContext } from "react";
 import AuthContext from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import "./auth.css"
 
-function Register(){
+function Register() {
     const { login } = useContext(AuthContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
     const [error, setError] = useState(null);
+    
+    const API_URL = process.env.REACT_APP_API_URL;
 
-    const handleSubmit = async(e) => {
+
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log("user :",username)
+        console.log("user :", username)
 
-        try{
+        try {
             setError(null);
-            const response = await fetch("http://localhost:5000/auth/register", {
-                method:"POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({username, password, email}),
+            const response = await fetch(`${API_URL}/auth/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password, email }),
             });
             const data = await response.json();
-            console.log("response :", response);
 
-            if (response.ok){
-                
+            if (response.ok) {
+
                 console.log("what data :", data)
                 login(username, password);
-                console.log(response.message);
-            }else{
-                setError(data.error|| "registration failed");
+            } else {
+                setError(data.error || "registration failed");
             }
-        }catch(err){
+        } catch (err) {
             setError("serverERR");
         }
     };
 
-    return(
-        <div>
-            <h2> Registration </h2>
-            <form onSubmit={handleSubmit}>
-                <input
-                type="username"
-                placeholder="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                />
-                <input
-                type="password"
-                placeholder="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                />
-                <input
-                type="email"
-                placeholder="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                />
-                <button type="Submit"> Register </button>
-            </form>
-            {error && <p style={{color :"red"}}>{error}</p>}
+    return (
+        <div className="body">
+            <div className="dashboard-cards frontline">
+                <h1> Registration </h1>
+                <form onSubmit={handleSubmit}>
+                    <input
+                        className="input"
+                        type="username"
+                        placeholder="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
+                    <input
+                        className="input"
+                        type="password"
+                        placeholder="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <input
+                        className="input"
+                        type="email"
+                        placeholder="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <button type="Submit"> Register </button>
+                </form>
+                <p>Already have an account
+                <br/>
+                <a id="register" href="/login" type="register">Login</a></p>
+                {error && <p style={{ color: "red" }}>{error}</p>}
+            </div>
         </div>
     );
 

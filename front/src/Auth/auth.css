@@ -1,0 +1,34 @@
+.body{
+    width: 100%;
+    height: 100vh;
+    background-size: cover;
+    background-color: var(--color-income-light);
+    
+}
+.dashboard-cards.frontline{
+    position: absolute;
+    top: 25%;
+    padding: 30px;
+    align-self: center;
+    justify-self: center;
+    background-color: var(--color-income);
+    width: fit-content;
+    color: white;
+}
+.frontline h1{
+    color: white;
+    align-self: center;
+}
+.frontline form{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 20px;
+    padding: 10px;
+}
+.frontline .input{
+    padding: 5px;
+}
+.frontline button{
+    box-shadow: 0 0 6px black;
+}

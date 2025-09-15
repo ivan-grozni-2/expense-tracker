@@ -7,9 +7,6 @@ function Navbar({ logout, username, setBurgerClass, burgerClass, tabs, setTabs }
     let initials = username.slice(0,2);
     const splitted = username.split(" ");
 
-    /*for (let i = 0; (i < 2 && i < splitted.length); i++) {
-        initials += splitted[i][0];
-    }*/
    
     if (initials !== "undefined") initials = initials.toUpperCase();
     else initials = "";
