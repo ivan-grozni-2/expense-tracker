@@ -15,7 +15,7 @@ function App() {
   const [filters, setFilters] = useState({ month: "", category: "" });
   const { user, token, userid} = useContext(AuthContext);
 
-
+  console.log("User at render:", user);
 
 
   return(
