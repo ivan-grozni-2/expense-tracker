@@ -73,7 +73,7 @@ function Register() {
                 </form>
                 <p>Already have an account
                 <br/>
-                <a id="register" href="/login" type="register">Login</a></p>
+                <Link id="register" href="/login" type="register">Login</Link></p>
                 {error && <p style={{ color: "red" }}>{error}</p>}
             </div>
         </div>
