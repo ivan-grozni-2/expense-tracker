@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import AuthContext from "../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./auth.css"
 
 
@@ -55,7 +55,7 @@ function Login() {
                     <button type="Submit"> login </button>
                 </form>
 
-                <Link id="register" to="/register" type="register"> Create a new account</Link>
+                <a id="register" href="/register" type="register"> Create a new account</a>
                 {error && <p style={{ color: "red" }}>{error}</p>}
             </div>
         </div>
