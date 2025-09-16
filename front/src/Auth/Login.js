@@ -55,7 +55,7 @@ function Login() {
                     <button type="Submit"> login </button>
                 </form>
 
-                <Link id="register" href="/register" type="register"> Create a new account</Link>
+                <Link id="register" to="/register" type="register"> Create a new account</Link>
                 {error && <p style={{ color: "red" }}>{error}</p>}
             </div>
         </div>
