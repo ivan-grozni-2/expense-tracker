@@ -4,7 +4,7 @@ import Chart from "../components/Chart";
 import Table from "../tables/table";
 import { data } from "react-router-dom";
 
-function Home({ allTransactions, burgerClass, setTab }) {
+function Home({ allTransactions, burgerClass, setTab, loading }) {
     let shrink = "home";
     let totalcolor = "";
     let income = 0;
@@ -15,7 +15,7 @@ function Home({ allTransactions, burgerClass, setTab }) {
     let incomeListcat = [];
     let expenseListcat = [];
     let monthly = [];
-    let months = [" ", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
+    let months = [" ", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     let uniquedate = new Set();
 
 
@@ -36,16 +36,20 @@ function Home({ allTransactions, burgerClass, setTab }) {
 
             };
 
-            if(uniquedate.has(element.date.slice(0,7))){
-                if(element.category_type === "income") monthly.find(entry => entry.date === element.date.slice(0,7)).income += Number(element.amount);
-                else if(element.category_type === "expense") monthly.find(entry => entry.date === element.date.slice(0,7)).expense += Number(element.amount);
+            if (uniquedate.has(element.date.slice(0, 7))) {
+                if (element.category_type === "income") monthly.find(entry => entry.date === element.date.slice(0, 7)).income += Number(element.amount);
+                else if (element.category_type === "expense") monthly.find(entry => entry.date === element.date.slice(0, 7)).expense += Number(element.amount);
 
-            }else{
-                uniquedate.add(element.date.slice(0,7))
-                monthly.push({...{date:element.date.slice(0,7),
-                    month:months[Number(element.date.split("-")[1])],
-                     income:(element.category_type === "income") ? Number(element.amount):0,
-                      expense:(element.category_type === "expense") ? Number(element.amount):0}})
+            } else {
+                uniquedate.add(element.date.slice(0, 7))
+                monthly.push({
+                    ...{
+                        date: element.date.slice(0, 7),
+                        month: months[Number(element.date.split("-")[1])],
+                        income: (element.category_type === "income") ? Number(element.amount) : 0,
+                        expense: (element.category_type === "expense") ? Number(element.amount) : 0
+                    }
+                })
             }
 
 
@@ -98,98 +102,113 @@ function Home({ allTransactions, burgerClass, setTab }) {
     if (total <= 0) totalcolor = "#f44336";
     else totalcolor = "#4caf50";
 
-    
+    console.log("loading " + loading + " " + allTransactions.length)
 
     return (<div className={shrink}>
-       {(allTransactions.length === 0)?
-        (<div style={{display:"flex", justifyContent:"space-around", flexDirection:"column",alignItems:"center"}}>
-        <h4> If you want to view reports and transaction you need to add a transaction here</h4>
-        <button type="click" onClick={() => setTab(3) } style={{maxWidth:"15rem"}}>Add transaction</button>
-        </div>):(
-    
-        <>
-        <div className="row">
-            <div className="dashboard-cards left">
-                <button id="addtransactiononcards" type="click"> Add Transaction</button>
-                <h2>Overall Balance</h2>
-                <h1 style={{ margin: "0", paddingLeft: "30px", color: totalcolor }}>${total}</h1>
-                <div className="card">
-                    <div className="cards income-card">
-                        <h3>Income: <p>${income}</p></h3>
+        {(allTransactions.length === 0 && !loading) ?
+            (<div style={{ display: "flex", justifyContent: "space-around", flexDirection: "column", alignItems: "center" }}>
+                <h4> If you want to view reports and transaction you need to add a transaction here</h4>
+                <button type="click" onClick={() => setTab(3)} style={{ maxWidth: "15rem" }}>Add transaction</button>
+            </div>) : (
 
-                        {incomeList.length === 0 ? (<></>) : (
-                            <div>
-                                <h3>top incomes</h3>
-                                <div className="lists">
-                                    <ol>
-                                        {incomeListcat.slice(0, 3).map((e, i) => (
-                                            <li key={i}>{e.category}</li>
-                                        ))
+                <>
+                    <div className="row">
+                        <div className="dashboard-cards left">
+                            <button id="addtransactiononcards" type="click"> Add Transaction</button>
+                            <h2>Overall Balance</h2>
+                            {loading ? (<>
+                                <p>loading...</p>
+                            </>) : (<>
+                                <h1 style={{ margin: "0", paddingLeft: "30px", color: totalcolor }}>${total}</h1>
+                                <div className="card">
+                                    <div className="cards income-card">
+                                        <h3>Income: <p>${income}</p></h3>
+
+                                        {incomeList.length === 0 ? (<></>) : (
+                                            <div>
+                                                <h3>top incomes</h3>
+                                                <div className="lists">
+                                                    <ol>
+                                                        {incomeListcat.slice(0, 3).map((e, i) => (
+                                                            <li key={i}>{e.category}</li>
+                                                        ))
 
 
+                                                        }
+                                                    </ol>
+                                                    <ul>
+                                                        {incomeListcat.slice(0, 3).map((e, i) => (
+                                                            <li key={i}>${e.amount.toFixed(2)}</li>
+                                                        ))
+
+
+                                                        }
+                                                    </ul>
+
+                                                </div>
+                                            </div>)}
+                                    </div>
+
+                                    <div className="cards expense-card">
+                                        <div>
+                                            <h3>expense<p>${expense}</p></h3>
+
+                                        </div>
+                                        {expenseList.length === 0 ? (<></>) : (
+                                            <div>
+                                                <h3>top expenses</h3>
+                                                <div className="lists">
+                                                    <ol>
+                                                        {expenseListcat.slice(0, 3).map((e, i) => (
+                                                            <li key={i}>{e.category}</li>
+                                                        ))
+
+
+                                                        }
+                                                    </ol>
+                                                    <ul>
+                                                        {expenseListcat.slice(0, 3).map((e, i) => (
+                                                            <li key={i}>${e.total.toFixed(2)}</li>
+                                                        ))
+
+
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>)
                                         }
-                                    </ol>
-                                    <ul>
-                                        {incomeListcat.slice(0, 3).map((e, i) => (
-                                            <li key={i}>${e.amount.toFixed(2)}</li>
-                                        ))
-
-
-                                        }
-                                    </ul>
-
-                                </div>
-                            </div>)}
-                    </div>
-
-                    <div className="cards expense-card">
-                        <div>
-                            <h3>expense<p>${expense}</p></h3>
-
+                                    </div>
+                                </div></>)}
                         </div>
-                        {expenseList.length === 0 ? (<></>) : (
-                            <div>
-                                <h3>top expenses</h3>
-                                <div className="lists">
-                                    <ol>
-                                        {expenseListcat.slice(0, 3).map((e, i) => (
-                                            <li key={i}>{e.category}</li>
-                                        ))
-
-
-                                        }
-                                    </ol>
-                                    <ul>
-                                        {expenseListcat.slice(0, 3).map((e, i) => (
-                                            <li key={i}>${e.total.toFixed(2)}</li>
-                                        ))
-
-
-                                        }
-                                    </ul>
-                                </div>
-                            </div>)
-                        }
+                        <div className="dashboard-cards right">
+                            <h2> Expense By Category</h2>
+                            {loading ? (<>
+                                <p>loading...</p>
+                            </>) : (<>
+                                <Chart data={expenseListcat} type={"pie"} total={total} />
+                            </>)}
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div className="dashboard-cards right">
-                <h2> Expense By Category</h2>
-                <Chart data={expenseListcat} type={"pie"} total={total} />
+                    <div className="row">
+                        <div className="dashboard-cards right">
+                            <h2> monthly income and expense</h2>
+                            {loading ? (<>
+                                <p>loading...</p>
+                            </>) : (<>
+                                <Chart data={monthly} type={"Bar"} />
+                            </>)}
+                        </div>
+                        <div className="dashboard-cards left">
+                            <h2> Recent Transactions</h2>
 
-            </div>
-        </div>
-        <div className="row">
-        <div className="dashboard-cards right">
-                        <Chart data={monthly} type={"Bar"}/>
-        </div>
-        <div className="dashboard-cards left">
-            <h2> Recent Transactions</h2>
-            <Table data={allTransactions} />
-
-        </div>
-        </div></>
-)}
+                            {loading ? (<>
+                                <p>loading...</p>
+                            </>) : (<>
+                                <Table data={allTransactions} />
+                            </>)}
+                        </div>
+                    </div></>
+            )}
     </div>
     )
 }

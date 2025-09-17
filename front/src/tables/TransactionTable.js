@@ -3,7 +3,7 @@ import AuthContext from "../context/AuthContext";
 import "./table.css"
 import Filters from "../Filter/Filters";
 
-function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters, total, burgerClass, setTab }) {
+function TransactionTable({ transactions, setTransactions, categories, fetchTransactions, filters, total, burgerClass, setTab, loading }) {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "", note: "" });
   const [sorting, setSorting] = useState({ column: "", direction: 1 });
@@ -12,6 +12,8 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
   const [note, setNote] = useState({ date: "", category_name: "", note: "", index: 0, id: 0 })
   const [message, setMessage] = useState("")
   const [noteButton, setNoteButton] = useState(false);
+  const [load, setLoad] = useState(false);
+  const API_URL = process.env.REACT_APP_API_URL;
 
   let shrink = "transaction";
 
@@ -33,7 +35,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
   }
 
   const handleSave = (id) => {
-    fetch(`http://localhost:5000/transactions/${id}`, {
+    fetch(`${API_URL}/transactions/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -57,25 +59,29 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
           setMessage("Error updating transaction please try again");
           return;
         }
-      });
+      })
     fetchTransactions(filters);
   };
 
   const handleDelete = (id) => {
-    fetch(`http://localhost:5000/transactions/${id}`, {
+    fetch(`${API_URL}/transactions/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
     })
-      .then(() => setTransactions(transactions.filter((t) => t.id !== id)))
-      .catch((err) => console.error("Error deleting transaction:", err));
+      .then((data) => {
+        setTransactions(transactions.filter((t) => t.id !== id));
+        setMessage(data.message);
+
+      })
+      .catch((err) => console.error("Error deleting transaction:", err))
     fetchTransactions(filters);
   };
 
   const handleSort = (key) => {
-    const arrow = ["v", "^"];
+    const arrow = ["▼", "▲"];
 
     let dc = (Math.abs(sorting.direction - 1));
 
@@ -126,20 +132,20 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
 
     }
 
-    fetch(`http://localhost:5000/transactions/export/csv${query}`, {
+    fetch(`${API_URL}/transactions/export/csv${query}`, {
       headers: {
         "Authorization": `Bearer ${token}`
       }
     })
       .then((res) => res.blob())
       .then((blob) => {
-
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
         a.download = "transactions.csv";
         a.click();
         window.URL.revokeObjectURL(url);
+        setMessage("Sucessfully exported")
       })
       .catch((error) => setMessage("error exporting"));
 
@@ -225,6 +231,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
         )}
       <div style={{ flex: "1", alignSelf: "flex-start", position: "sticky", top: "20px", margin: 10, textAlign: "center", width: "fit-content" }}>
         <p>{message}</p>
+        {(loading && transactions.length!==0) ? (<p>please wait</p>) : (<></>)}
         <h3>Total is {total}</h3>
         <button onClick={handleExport}>Export Spreadsheet</button>
         {note.note === "" ? (<p> Click on a transaction to view notes</p>) : (

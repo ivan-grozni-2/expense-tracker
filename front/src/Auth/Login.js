@@ -9,6 +9,7 @@ function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -18,6 +19,7 @@ function Login() {
 
         try {
             setError(null)
+            setLoading(true);
             const response = await login(username, password);
 
             if (!response.error) {
@@ -27,6 +29,8 @@ function Login() {
             }
         } catch (err) {
             setError("serverERR");
+        }finally{
+            setLoading(false)
         }
     };
 
@@ -56,7 +60,9 @@ function Login() {
                 </form>
 
                 <Link id="register" to="/register"> Create a new account</Link>
-                {error && <p style={{ color: "red" }}>{error}</p>}
+                {loading?(<>
+                <p>loading...</p>
+                </>):(error && <p style={{ color: "red" }}>{error}</p>)}
             </div>
         </div>
     );

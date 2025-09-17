@@ -27,6 +27,7 @@ function Dashboard() {
     const [burgerClass, setBurgerClass] = useState("hamburger");
     const [allTransactions, setAllTransaction] = useState([])
     const [tabs, setTabs] = useState(0);
+    const [loading, setLoading] = useState(true)
 
     const API_URL = process.env.REACT_APP_API_URL;
 
@@ -55,6 +56,7 @@ function Dashboard() {
         const query = new URLSearchParams(newFilters).toString();
 
         try {
+            setLoading(true);
             const data1 = await authFetch(`${API_URL}/transactions?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
@@ -63,6 +65,29 @@ function Dashboard() {
             });
 
             setTransactions(data1);
+
+            const data = await authFetch(`${API_URL}/transactions/summary/monthly?${query}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            data.forEach(element => {
+                element.total = Number(element.total);
+            });
+            setMonth(data);
+
+            
+            const data2 = await authFetch(`${API_URL}/transactions/summary?${query}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            data2.forEach(element => {
+                element.total = Number(element.total);
+            });
+            setSummary(data2);
 
             const data4 = await authFetch(`${API_URL}/transactions/total?${query}`, {
                 headers: {
@@ -99,6 +124,8 @@ function Dashboard() {
 
         } catch (err) {
             console.error("Error fetching:", err);
+        }finally{
+            setLoading(false)
         }
     };
 
@@ -106,6 +133,7 @@ function Dashboard() {
         setFilters(newFilters);
         const query = new URLSearchParams(newFilters).toString();
         try {
+            setLoading(true);
             const data = await authFetch(`${API_URL}/transactions/summary/monthly?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
@@ -118,6 +146,8 @@ function Dashboard() {
             setMonth(data);
         } catch (err) {
             console.error("Error fetching:", err);
+        }finally{
+            setLoading(false);
         }
     };
 
@@ -125,6 +155,7 @@ function Dashboard() {
         setFilters(newFilters);
         const query = new URLSearchParams(newFilters).toString();
         try {
+            setLoading(true);
             const data = await authFetch(`${API_URL}/transactions/summary?${query}`, {
                 headers: {
                     "Content-Type": "application/json",
@@ -137,19 +168,19 @@ function Dashboard() {
             setSummary(data);
         } catch (err) {
             console.error("Error fetching:", err);
+        }finally{
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         fetchTransactions();
-        fetchMonthly();
-        fetchSummary();
-        fetch("${API_URL}/categories")
+        fetch(`${API_URL}/categories`)
             .then((res) => res.json())
-            .then((data) => setCategories(data))
-            .catch((err) => console.error("Error fetching categories:", err));
+            .then((data) => {setCategories(data); setLoading(true);})
+            .catch((err) => console.error("Error fetching categories:", err))
+            ;
     }, []);
-
 
     return (
         <>
@@ -168,7 +199,7 @@ function Dashboard() {
             />
             <>
                 {tabs === 0 ? (<>
-                    <Home allTransactions={allTransactions} burgerClass={burgerClass} setTab={setTabs} />
+                    <Home allTransactions={allTransactions} burgerClass={burgerClass} setTab={setTabs} loading={loading}/>
                 </>) : tabs === 1 ? (<>
                     <Report
                         burgerClass={burgerClass}
@@ -180,6 +211,7 @@ function Dashboard() {
                         fetchTransactions={fetchTransactions}
                         categories={categories} 
                         setTab={setTabs}
+                        loading={loading}
                         />
                 </>) : tabs === 2 ? (<>
                     <TransactionTable
@@ -191,6 +223,7 @@ function Dashboard() {
                         total={total}
                         burgerClass={burgerClass}
                         setTab={setTabs}
+                        loading = {loading}
                     />
                 </>) : tabs === 3 ?(
                     <>
