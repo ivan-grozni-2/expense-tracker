@@ -2,7 +2,6 @@ import React from "react";
 import "./home.css"
 import Chart from "../components/Chart";
 import Table from "../tables/table";
-import { data } from "react-router-dom";
 
 function Home({ allTransactions, burgerClass, setTab, loading }) {
     let shrink = "home";
@@ -102,8 +101,6 @@ function Home({ allTransactions, burgerClass, setTab, loading }) {
     if (total <= 0) totalcolor = "#f44336";
     else totalcolor = "#4caf50";
 
-    console.log("loading " + loading + " " + allTransactions.length)
-
     return (<div className={shrink}>
         {(allTransactions.length === 0 && !loading) ?
             (<div style={{ display: "flex", justifyContent: "space-around", flexDirection: "column", alignItems: "center" }}>
@@ -116,9 +113,10 @@ function Home({ allTransactions, burgerClass, setTab, loading }) {
                         <div className="dashboard-cards left">
                             <button id="addtransactiononcards" type="click"> Add Transaction</button>
                             <h2>Overall Balance</h2>
-                            {loading ? (<>
-                                <p>loading...</p>
-                            </>) : (<>
+                            {loading ? (<div className="spinner-container">
+                                <div className="spinner"></div>
+                                <p>Loading data…</p>
+                            </div>) : (<>
                                 <h1 style={{ margin: "0", paddingLeft: "30px", color: totalcolor }}>${total}</h1>
                                 <div className="card">
                                     <div className="cards income-card">
@@ -182,9 +180,10 @@ function Home({ allTransactions, burgerClass, setTab, loading }) {
                         </div>
                         <div className="dashboard-cards right">
                             <h2> Expense By Category</h2>
-                            {loading ? (<>
-                                <p>loading...</p>
-                            </>) : (<>
+                            {loading ? (<div className="spinner-container">
+                                <div className="spinner"></div>
+                                <p>Loading data…</p>
+                            </div>) : (<>
                                 <Chart data={expenseListcat} type={"pie"} total={total} />
                             </>)}
                         </div>
@@ -192,18 +191,20 @@ function Home({ allTransactions, burgerClass, setTab, loading }) {
                     <div className="row">
                         <div className="dashboard-cards right">
                             <h2> monthly income and expense</h2>
-                            {loading ? (<>
-                                <p>loading...</p>
-                            </>) : (<>
+                            {loading ? (<div className="spinner-container">
+                                <div className="spinner"></div>
+                                <p>Loading data…</p>
+                            </div>) : (<>
                                 <Chart data={monthly} type={"Bar"} />
                             </>)}
                         </div>
                         <div className="dashboard-cards left">
                             <h2> Recent Transactions</h2>
 
-                            {loading ? (<>
-                                <p>loading...</p>
-                            </>) : (<>
+                            {loading ? (<div className="spinner-container">
+                                <div className="spinner"></div>
+                                <p>Loading data…</p>
+                            </div>) : (<>
                                 <Table data={allTransactions} />
                             </>)}
                         </div>

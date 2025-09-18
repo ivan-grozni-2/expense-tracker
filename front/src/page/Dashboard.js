@@ -1,11 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import TransactionForm from "../form/TransactionForm";
 import TransactionTable from "../tables/TransactionTable";
-import CategoryAdd from "../components/CategoryAdd";
-import Chart from "../components/Chart";
 import AuthContext from "../context/AuthContext";
 import Navbar from "../components/navbar";
-import DashboardCards from "../components/DashboardCards";
 import Hamburger from "../Navigation/Hamburger";
 import "../styles/Dashboard.css"
 import Home from "../pages/Home";
@@ -18,11 +15,8 @@ function Dashboard() {
     const [categories, setCategories] = useState([]);
     const [total, setTotal] = useState(0);
     const [filters, setFilters] = useState({ month: "", category: "" });
-    const [income, setIncome] = useState([]);
-    const [expense, setExpense] = useState([])
-    const { user, token, userid } = useContext(AuthContext);
+    const { token } = useContext(AuthContext);
     const { logout } = useContext(AuthContext);
-    const [exportMessage, setExportMessage] = ("");
     const [username, setUsername] = useState("");
     const [burgerClass, setBurgerClass] = useState("hamburger");
     const [allTransactions, setAllTransaction] = useState([])
@@ -183,7 +177,7 @@ function Dashboard() {
     }, []);
 
     return (
-        <>
+        <div className="maincontainer">
             <Hamburger
                 burgerClass={burgerClass}
                 setBurgerClass={burgerClass}
@@ -241,7 +235,7 @@ function Dashboard() {
                     </>
                 ):(<></>)}
             </>
-        </>
+        </div>
 
     )
 }

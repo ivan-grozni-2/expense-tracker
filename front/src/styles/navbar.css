@@ -176,3 +176,10 @@
     color: var(--color-income);
 }
 
+
+@media(max-width: 550px){
+    .navbar{
+      display: none;
+    }
+  }
+

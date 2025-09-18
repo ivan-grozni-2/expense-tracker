@@ -19,7 +19,7 @@
     display: block;
     background-color: white;
     max-height: 100%;
-    height: 100%;
+    height: 100vh;
     z-index: 1;
 }
 .editor{
@@ -49,4 +49,13 @@
 .select li:hover{
     background-color: var(--color-income-light);
     color: var(--color-income);
+}
+.select.hidden{
+    display: none;
+}
+
+@media(max-width: 551px){
+    .select.hidden{
+        display: flex;
+    }
 }

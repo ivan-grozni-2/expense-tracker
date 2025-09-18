@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import AuthContext from "./context/AuthContext";
 import Login from "./Auth/Login";
@@ -7,16 +7,7 @@ import Dashboard from "./page/Dashboard";
 
 
 function App() {
-  const [transactions, setTransactions] = useState([]);
-  const [summary, setSummary] = useState([]);
-  const [month, setMonth] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [filters, setFilters] = useState({ month: "", category: "" });
-  const { user, token, userid} = useContext(AuthContext);
-
-  console.log("User at render:", user);
-
+  const { user} = useContext(AuthContext);
 
   return(
     <Router>

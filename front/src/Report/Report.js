@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./report.css"
 import Chart from "../components/Chart";
 import Filters from "../Filter/Filters";
 
-function Report({ burgerClass, fetchMonthly, monthly, fetchSummary, summary, onFilter, fetchTransactions, categories, setTab, loading }) {
+function Report({ burgerClass, fetchMonthly, monthly, fetchSummary, summary, categories, setTab, loading }) {
 
     let shrink = "report";
 
@@ -30,9 +30,10 @@ function Report({ burgerClass, fetchMonthly, monthly, fetchSummary, summary, onF
                                 />
                             </div>
                             <div>
-                                {loading ? (<>
-                                    <p>loading...</p>
-                                </>) : (<>
+                                {loading ? (<div className="spinner-container">
+                                    <div className="spinner"></div>
+                                    <p>Loading data…</p>
+                                </div>) : (<>
                                     <Chart data={summary}
                                         type="1bar"
                                     />
@@ -41,9 +42,10 @@ function Report({ burgerClass, fetchMonthly, monthly, fetchSummary, summary, onF
                         </div>
                         <div className="row">
                             <div>
-                                {loading ? (<>
-                                    <p>loading...</p>
-                                </>) : (<>
+                                {loading ? (<div className="spinner-container">
+                                    <div className="spinner"></div>
+                                    <p>Loading data…</p>
+                                </div>) : (<>
                                     <Chart data={summary}
                                         type="piein"
                                         title="Expenses by Category"
@@ -51,9 +53,10 @@ function Report({ burgerClass, fetchMonthly, monthly, fetchSummary, summary, onF
                                 </>)}
                             </div>
                             <div>
-                                {loading ? (<>
-                                    <p>loading...</p>
-                                </>) : (<>
+                                {loading ? (<div className="spinner-container">
+                                    <div className="spinner"></div>
+                                    <p>Loading data…</p>
+                                </div>) : (<>
                                     <Chart data={summary}
                                         type="pieout"
                                         title="Expenses by Category"
@@ -74,9 +77,10 @@ function Report({ burgerClass, fetchMonthly, monthly, fetchSummary, summary, onF
                         <Filters categories={categories} onFilter={fetchMonthly} fetchTransactions={fetchMonthly} vertical={true} />
                     </div>
                     <div style={{ overflowX: "scroll", maxWidth: "80vw", height: "400", overflowY: "hidden" }}>
-                        {loading ? (<>
-                            <p>loading...</p>
-                        </>) : (<>
+                        {loading ? (<div className="spinner-container">
+                            <div className="spinner"></div>
+                            <p>Loading data…</p>
+                        </div>) : (<>
                             <Chart data={monthly}
                                 type="line"
                                 title="Monthly Expenses"

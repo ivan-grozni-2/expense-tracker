@@ -1,9 +1,8 @@
 import React, { useContext, useState } from "react";
 import AuthContext from "../context/AuthContext";
-import CategoryAdd from "../components/CategoryAdd";
 import "./form.css"
 
-function TransactionForm({ transactions, setCategories, categories, fetchTransactions, filters, burgerClass, fetchSummary, fetchmonthly }) {
+function TransactionForm({ categories, fetchTransactions, filters, burgerClass, fetchSummary, fetchmonthly, loading }) {
   const { userid, token } = useContext(AuthContext);
   const [form, setForm] = useState({
     amount: "",
@@ -48,6 +47,8 @@ function TransactionForm({ transactions, setCategories, categories, fetchTransac
           console.error(err)
         });
       fetchTransactions(filters);
+      fetchSummary(filters);
+      fetchmonthly(filters);
 
     } else {
       setMessage("Please fill every form")
@@ -128,6 +129,10 @@ function TransactionForm({ transactions, setCategories, categories, fetchTransac
         <div style={{display:"flex", justifyContent:"space-around", width:"100%"}}><button type="submit">Add</button></div>
       </form>
       <div>{transMessage}</div>
+      {(loading)?(<div className="spinner-container">
+                                <div className="spinner"></div>
+                                <p>Updating…</p>
+                            </div>):(<></>)}
     </div>
 
 
@@ -144,6 +149,11 @@ function TransactionForm({ transactions, setCategories, categories, fetchTransac
 
       </form>
       <div>{message}</div>
+      {(loading)?(<div className="spinner-container">
+                                <div className="spinner"></div>
+                                <p>Updating…</p>
+                            </div>):(<></>)}
+    
     </div>
   </div>
   );

@@ -8,11 +8,10 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
   const [editForm, setEditForm] = useState({ amount: "", category_id: "", date: "", note: "" });
   const [sorting, setSorting] = useState({ column: "", direction: 1 });
   const [arrowDirection, setArrowDirection] = useState({ id: "-", date: "-", amount: "-", category_name: "-", category_type: "-" })
-  const { user, token, userid } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const [note, setNote] = useState({ date: "", category_name: "", note: "", index: 0, id: 0 })
   const [message, setMessage] = useState("")
   const [noteButton, setNoteButton] = useState(false);
-  const [load, setLoad] = useState(false);
   const API_URL = process.env.REACT_APP_API_URL;
 
   let shrink = "transaction";
@@ -147,7 +146,7 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
         window.URL.revokeObjectURL(url);
         setMessage("Sucessfully exported")
       })
-      .catch((error) => setMessage("error exporting"));
+      .catch(() => setMessage("error exporting"));
 
   };
 
@@ -231,7 +230,10 @@ function TransactionTable({ transactions, setTransactions, categories, fetchTran
         )}
       <div style={{ flex: "1", alignSelf: "flex-start", position: "sticky", top: "20px", margin: 10, textAlign: "center", width: "fit-content" }}>
         <p>{message}</p>
-        {(loading && transactions.length!==0) ? (<p>please wait</p>) : (<></>)}
+        {(loading && transactions.length!==0) ? (<div className="spinner-container">
+                                <div className="spinner"></div>
+                                <p>Please wait…</p>
+                            </div>) : (<></>)}
         <h3>Total is {total}</h3>
         <button onClick={handleExport}>Export Spreadsheet</button>
         {note.note === "" ? (<p> Click on a transaction to view notes</p>) : (

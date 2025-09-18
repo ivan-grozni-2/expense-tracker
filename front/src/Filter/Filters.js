@@ -68,11 +68,11 @@ function Filters({ categories, onFilter, fetchTransactions, vertical }) {
                 <div className={vertical ? "content" : "content vertical"}>
                     <h4>Revenue type</h4>
                     <div className="cardbox submit">
-                        <input className="input" type="radio" name="revenue" value="income" checked={revenue == "income"} onChange={(e) => setRevenue("income")} />
+                        <input className="input" type="radio" name="revenue" value="income" checked={revenue === "income"} onChange={() => setRevenue("income")} />
                         <label >income</label><br />
-                        <input className="input" type="radio" name="revenue" value="expense" checked={revenue == "expense"} onChange={(e) => setRevenue("expense")} />
+                        <input className="input" type="radio" name="revenue" value="expense" checked={revenue === "expense"} onChange={() => setRevenue("expense")} />
                         <label >expense</label><br />
-                        <input className="input" type="radio" name="revenue" value="" checked={revenue == ""} onChange={(e) => setRevenue("")} />
+                        <input className="input" type="radio" name="revenue" value="" checked={revenue === ""} onChange={() => setRevenue("")} />
                         <label >all</label><br /><br />
                     </div>
                 </div>
